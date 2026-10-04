@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Dashen Bingo — Admin Command Center</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',system-ui,sans-serif; }
+  body { background:#0b0f14; color:#e8eef5; min-height:100vh; }
+  .hidden { display:none !important; }
+
+  #login { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(1200px 600px at 50% -10%, rgba(251,191,36,.15), transparent), #0b0f14; }
+  .login-card { width:92%; max-width:360px; background:rgba(255,255,255,.04); border:1px solid rgba(251,191,36,.25);
+    border-radius:20px; padding:32px 26px; backdrop-filter:blur(14px); text-align:center; }
+  .login-card .logo { font-size:44px; }
+  .login-card h1 { font-size:20px; margin:10px 0 4px; color:#fbbf24; }
+  .login-card p { font-size:12px; color:#8fa1b3; margin-bottom:22px; }
+  .login-card input { width:100%; padding:13px 16px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.35); color:#fff; font-size:14px; outline:none; margin-bottom:14px; }
+  .login-card input:focus { border-color:#fbbf24; }
+  .btn-gold { width:100%; padding:13px; border:none; border-radius:12px; cursor:pointer; font-size:15px; font-weight:700;
+    background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#111; }
+  #loginErr { color:#f87171; font-size:12px; margin-top:10px; min-height:16px; }
+
+  header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px;
+    background:rgba(255,255,255,.03); border-bottom:1px solid rgba(251,191,36,.2); position:sticky; top:0; z-index:10; }
+  header h2 { font-size:16px; color:#fbbf24; }
+  header .state { font-size:11px; padding:5px 12px; border-radius:20px; background:rgba(16,185,129,.15); color:#34d399; border:1px solid rgba(16,185,129,.4); }
+  header .state.live { background:rgba(239,68,68,.15); color:#f87171; border-color:rgba(239,68,68,.4); }
+  nav { display:flex; gap:6px; padding:10px 12px; overflow-x:auto; background:rgba(0,0,0,.2); }
+  nav button { flex:0 0 auto; padding:9px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.04); color:#aab8c5; font-size:12px; cursor:pointer; white-space:nowrap; }
+  nav button.active { background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#111; font-weight:700; border-color:transparent; }
+  main { padding:10px 14px 90px; }
+
+  .grid { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:14px; }
+  .card { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:14px; }
+  .card .label { font-size:10px; letter-spacing:1px; color:#8fa1b3; text-transform:uppercase; }
+  .card .value { font-size:20px; font-weight:800; margin-top:4px; }
+  .card.gold .value { color:#fbbf24; } .card.green .value { color:#34d399; }
+  .card.blue .value { color:#60a5fa; } .card.purple .value { color:#c084fc; }
+
+  .section { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:16px; margin-bottom:14px; }
+  .section h3 { font-size:13px; color:#fbbf24; margin-bottom:12px; letter-spacing:.5px; text-transform:uppercase; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; }
+  .btn { padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06);
+    color:#e8eef5; font-size:12px; cursor:pointer; font-weight:600; }
+  .btn.danger { background:rgba(239,68,68,.15); border-color:rgba(239,68,68,.4); color:#f87171; }
+  .btn.ok { background:rgba(16,185,129,.15); border-color:rgba(16,185,129,.4); color:#34d399; }
+
+  textarea { width:100%; min-height:80px; padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.35); color:#fff; font-size:14px; outline:none; margin-bottom:10px; resize:vertical; }
+
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; color:#8fa1b3; font-weight:600; padding:8px 6px; border-bottom:1px solid rgba(255,255,255,.1); }
+  td { padding:9px 6px; border-bottom:1px solid rgba(255,255,255,.05); vertical-align:top; }
+  .mini { padding:5px 9px; border-radius:8px; border:1px solid; font-size:11px; cursor:pointer; margin-right:4px; display:inline-block; }
+  .mini.ok { border-color:rgba(16,185,129,.4); background:rgba(16,185,129,.1); color:#34d399; }
+  .mini.danger { border-color:rgba(239,68,68,.4); background:rgba(239,68,68,.1); color:#f87171; }
+  .mini.gold { border-color:rgba(251,191,36,.4); background:rgba(251,191,36,.1); color:#fbbf24; }
+
+  .txn-card { background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:14px; margin-bottom:10px; }
+  .txn-card.deposit { border-left:3px solid #34d399; }
+  .txn-card.withdrawal { border-left:3px solid #f59e0b; }
+  .txn-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap; gap:6px; }
+  .txn-type { font-size:11px; padding:3px 10px; border-radius:10px; font-weight:700; letter-spacing:.5px; }
+  .txn-type.deposit { background:rgba(16,185,129,.2); color:#34d399; }
+  .txn-type.withdrawal { background:rgba(245,158,11,.2); color:#f59e0b; }
+  .txn-amount { font-size:18px; font-weight:800; color:#fff; }
+  .txn-user { font-size:13px; color:#e8eef5; margin-bottom:4px; }
+  .txn-meta { font-size:11px; color:#8fa1b3; margin-bottom:8px; }
+  .sms-box { background:rgba(0,0,0,.4); border:1px dashed rgba(251,191,36,.3); border-radius:10px; padding:10px; font-family:monospace; font-size:11px; color:#cbd5e1; margin-bottom:10px; white-space:pre-wrap; word-break:break-all; max-height:120px; overflow-y:auto; }
+  .sms-parsed { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; font-size:11px; }
+  .sms-parsed span { background:rgba(251,191,36,.1); padding:3px 8px; border-radius:6px; color:#fbbf24; }
+  .txn-actions { display:flex; gap:8px; }
+
+  .empty { text-align:center; color:#8fa1b3; padding:30px; font-size:13px; }
+
+  .filter-row { display:flex; gap:6px; margin-bottom:14px; }
+  .filter-btn { padding:8px 14px; border-radius:10px; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); color:#aab8c5; font-size:12px; cursor:pointer; }
+  .filter-btn.active { background:linear-gradient(135deg,#fbbf24,#f59e0b); color:#111; font-weight:700; border-color:transparent; }
+
+  .summary-row { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; margin-bottom:14px; }
+
+  #toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111827; border:1px solid rgba(251,191,36,.4);
+    color:#fbbf24; padding:11px 20px; border-radius:12px; font-size:13px; opacity:0; transition:.3s; pointer-events:none; z-index:99; }
+  #toast.show { opacity:1; }
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="login-card">
+    <div class="logo">🛡️</div>
+    <h1>ADMIN COMMAND CENTER</h1>
+    <p>Dashen Bingo — Restricted Access</p>
+    <input type="password" id="keyInput" placeholder="Enter Admin Key">
+    <button class="btn-gold" onclick="login()">Unlock Dashboard</button>
+    <div id="loginErr"></div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header>
+    <h2>🛡️ Dashen Admin</h2>
+    <span class="state" id="gameState">--</span>
+  </header>
+  <nav>
+    <button class="active" data-tab="dash" onclick="tab('dash')">📊 Dashboard</button>
+    <button data-tab="pending" onclick="tab('pending')">⏳ Pending <span id="pendingBadge"></span></button>
+    <button data-tab="ledger" onclick="tab('ledger')">📒 Ledger</button>
+    <button data-tab="users" onclick="tab('users')">👥 Users</button>
+    <button data-tab="game" onclick="tab('game')">🎮 Game</button>
+    <button data-tab="promos" onclick="tab('promos')">🎁 Promos</button>
+    <button data-tab="cast" onclick="tab('cast')">📢 Broadcast</button>
+  </nav>
+  <main>
+    <div id="tab-dash">
+      <div class="grid">
+        <div class="card gold"><div class="label">Prize Pool</div><div class="value" id="s-prize">--</div></div>
+        <div class="card blue"><div class="label">Cards Sold</div><div class="value" id="s-cards">--</div></div>
+        <div class="card green"><div class="label">Called</div><div class="value" id="s-called">--</div></div>
+        <div class="card purple"><div class="label">Last Number</div><div class="value" id="s-last">--</div></div>
+        <div class="card"><div class="label">Total Users</div><div class="value" id="s-users">--</div></div>
+        <div class="card green"><div class="label">Verified</div><div class="value" id="s-verified">--</div></div>
+        <div class="card gold"><div class="label">All Balances</div><div class="value" id="s-bal">--</div></div>
+        <div class="card blue"><div class="label">Lobby Timer</div><div class="value" id="s-timer">--</div></div>
+      </div>
+    </div>
+
+    <div id="tab-pending" class="hidden">
+      <div class="section">
+        <h3>⏳ Pending Transactions</h3>
+        <div id="pendingList"><div class="empty">Loading...</div></div>
+      </div>
+    </div>
+
+    <div id="tab-ledger" class="hidden">
+      <div class="section">
+        <h3>📒 Transaction Ledger</h3>
+        <div class="filter-row">
+          <button class="filter-btn active" data-period="daily" onclick="ledgerPeriod('daily')">Today</button>
+          <button class="filter-btn" data-period="weekly" onclick="ledgerPeriod('weekly')">This Week</button>
+          <button class="filter-btn" data-period="monthly" onclick="ledgerPeriod('monthly')">This Month</button>
+          <button class="filter-btn" data-period="all" onclick="ledgerPeriod('all')">All</button>
+        </div>
+        <div class="summary-row" id="ledgerSummary"></div>
+        <div id="ledgerList"></div>
+      </div>
+    </div>
+
+    <div id="tab-users" class="hidden">
+      <div class="section">
+        <h3>Registered Players</h3>
+        <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Name</th><th>Phone</th><th>Balance</th><th>Actions</th></tr></thead>
+          <tbody id="usersBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <div id="tab-game" class="hidden">
+      <div class="section">
+        <h3>Game Controls</h3>
+        <div class="row">
+          <button class="btn ok" onclick="act('game/force-start')">⚡ Force Start</button>
+          <button class="btn" onclick="act('game/call-next')">🎲 Call Next</button>
+          <button class="btn danger" onclick="resetGame()">♻️ Full Reset</button>
+        </div>
+      </div>
+    </div>
+
+    
+    <div id="tab-promos" class="hidden">
+      <div class="section">
+        <h3>🎁 Active Promotions & Bonuses</h3>
+        <p style="font-size:11px;color:#8fa1b3;margin-bottom:14px">Toggle campaigns on/off and adjust values. Changes apply instantly to the bot and game.</p>
+        <div id="promosList"><div class="empty">Loading promos...</div></div>
+      </div>
+    </div>
+
+    <div id="tab-cast" class="hidden"
+      <div class="section">
+        <h3>Broadcast To All</h3>
+        <textarea id="castText" placeholder="Type announcement..."></textarea>
+        <button class="btn-gold" style="width:auto;padding:12px 24px" onclick="broadcast()">📢 Send</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+let KEY = sessionStorage.getItem('adminKey') || '';
+const API = '/api/admin';
+
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+function fmt(d){ return new Date(d).toLocaleString(); }
+function money(n){ return Math.floor(parseFloat(n)||0).toLocaleString(); }
+
+async function api(path, opts={}){
+  const res = await fetch(API+'/'+path, Object.assign({
+    headers: { 'Content-Type':'application/json', 'x-admin-key': KEY }
+  }, opts));
+  if (res.status === 403) { if (sessionStorage.getItem('adminKey')) logout(); throw new Error('Forbidden'); }
+  return res.json();
+}
+
+async function login(){
+  KEY = document.getElementById('keyInput').value.trim();
+  try {
+    await api('login', { method:'POST', body:'{}' });
+    sessionStorage.setItem('adminKey', KEY);
+    document.getElementById('login').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    startPolling();
+  } catch(e){ document.getElementById('loginErr').textContent = (e && e.message === 'Forbidden') ? '❌ Invalid admin key' : '❌ Cannot reach server (' + (e && e.message ? e.message : 'network') + '). Is the backend running?'; }
+}
+function logout(){ sessionStorage.removeItem('adminKey'); location.reload(); }
+
+function tab(name){
+  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  ['dash','pending','ledger','users','game','promos','cast'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('hidden', t!==name));
+  if (name==='users') loadUsers();
+  if (name==='pending') loadPending();
+  if (name==='ledger') loadLedger(currentPeriod);
+  if (name==='promos') loadPromos();
+}
+
+// DASHBOARD
+async function refresh(){
+  try {
+    const d = await api('stats');
+    const g = d.game || {}, db = d.db || {};
+    document.getElementById('s-prize').textContent = money(g.prizePool) + ' ETB';
+    document.getElementById('s-cards').textContent = g.totalCardsSold ?? '--';
+    document.getElementById('s-called').textContent = (g.calledCount ?? 0) + '/75';
+    document.getElementById('s-last').textContent = g.lastNumber ?? '--';
+    document.getElementById('s-users').textContent = db.users ?? '--';
+    document.getElementById('s-verified').textContent = db.verified ?? '--';
+    document.getElementById('s-bal').textContent = money(db.totalBalances);
+    document.getElementById('s-timer').textContent = (g.state==='WAITING' ? (g.timeRemaining ?? '--') + 's' : 'LIVE');
+    const st = document.getElementById('gameState');
+    st.textContent = g.state || '--';
+    st.classList.toggle('live', g.state === 'CALLING');
+  } catch(e){}
+}
+
+// PENDING
+async function loadPending(){
+  const list = document.getElementById('pendingList');
+  list.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    const d = await api('pending');
+    const txns = d.transactions || [];
+    document.getElementById('pendingBadge').textContent = txns.length ? ' (' + txns.length + ')' : '';
+
+    if (txns.length === 0) {
+      list.innerHTML = '<div class="empty">✅ No pending transactions</div>';
+      return;
+    }
+
+    list.innerHTML = txns.map(t => {
+      const isDep = t.type === 'deposit';
+      const parsed = parseSMSLocal(t.sms_raw || '');
+      return `
+        <div class="txn-card ${t.type}">
+          <div class="txn-head">
+            <div>
+              <span class="txn-type ${t.type}">${isDep ? '⬆️ DEPOSIT' : '⬇️ WITHDRAWAL'}</span>
+              <div class="txn-user" style="margin-top:6px">👤 ${t.first_name || t.username || 'User'} ${t.phone_number ? '('+t.phone_number+')' : ''}</div>
+            </div>
+            <div class="txn-amount">${money(t.amount)} ETB</div>
+          </div>
+          <div class="txn-meta">
+            ${t.reference ? '🔖 Ref: <b>' + t.reference + '</b> · ' : ''}
+            ${t.method ? '📱 ' + t.method + ' · ' : ''}${t.payout_account ? '💳 ' + t.payout_account + ' · ' + (t.payout_name || '') + ' · ' : ''}${t.payout_account ? '💳 ' + t.payout_account + ' · ' + (t.payout_name || '') + ' · ' : ''}
+            🕒 ${fmt(t.created_at)}
+          </div>
+          ${isDep && t.sms_raw ? `
+            <div style="font-size:11px;color:#8fa1b3;margin-bottom:6px">📨 Raw SMS:</div>
+            <div class="sms-box">${escapeHtml(t.sms_raw)}</div>
+            <div class="sms-parsed">
+              ${parsed.amount ? '<span>💰 ' + parsed.amount + ' ETB</span>' : ''}
+              ${parsed.reference ? '<span>🔖 ' + parsed.reference + '</span>' : ''}
+              ${parsed.sender ? '<span>📱 ' + parsed.sender + '</span>' : ''}
+            </div>
+          ` : ''}
+          <div class="txn-actions">
+            <button class="mini ok" onclick="approve(${t.id})">✅ Approve</button>
+            <button class="mini danger" onclick="reject(${t.id}, '${t.type}')">❌ Reject${!isDep ? ' & Refund' : ''}</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e){ list.innerHTML = '<div class="empty">❌ ' + e.message + '</div>'; }
+}
+
+function parseSMSLocal(text){
+  if (!text) return {};
+  let amount=null, reference=null, sender=null;
+  const am = text.match(/(?:ETB|Birr)\s*(\d+(?:[.,]\d+)?)/i) || text.match(/(\d+(?:[.,]\d+)?)\s*(?:ETB|Birr)/i);
+  if (am) amount = parseFloat(am[1].replace(',','.'));
+  const rm = text.match(/(?:ref|reference|txn|trans)[:\s#]*([A-Z0-9\-]{4,})/i);
+  if (rm) reference = rm[1].toUpperCase();
+  const sm = text.match(/from\s+(\+?2519\d{8}|09\d{8}|\d{10,})/i);
+  if (sm) sender = sm[1];
+  return { amount, reference, sender };
+}
+function escapeHtml(s){ return (s||'').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+async function approve(id){
+  if (!confirm('Approve this transaction?')) return;
+  const d = await api('txn/approve/' + id, { method:'POST', body:'{}' });
+  toast(d.success ? '✅ Approved' : '❌ ' + d.error);
+  loadPending();
+}
+async function reject(id, type){
+  const notes = prompt(type === 'withdrawal'
+    ? 'Reject reason (money will be refunded to wallet):'
+    : 'Reject reason:');
+  if (notes === null) return;
+  const d = await api('txn/reject/' + id, { method:'POST', body: JSON.stringify({ notes }) });
+  toast(d.success ? '✅ Rejected' + (type==='withdrawal' ? ' (refunded)' : '') : '❌ ' + d.error);
+  loadPending();
+}
+
+// LEDGER
+let currentPeriod = 'daily';
+function ledgerPeriod(p){
+  currentPeriod = p;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active', b.dataset.period===p));
+  loadLedger(p);
+}
+async function loadLedger(period){
+  const list = document.getElementById('ledgerList');
+  const sum = document.getElementById('ledgerSummary');
+  list.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    const d = await api('ledger?period=' + period);
+    const txns = d.transactions || [];
+    const s = d.summary || {};
+
+    sum.innerHTML = `
+      <div class="card green"><div class="label">Deposits</div><div class="value">+${money(s.total_deposits)}</div></div>
+      <div class="card gold"><div class="label">Withdrawals</div><div class="value">-${money(s.total_withdrawals)}</div></div>
+      <div class="card blue"><div class="label">Approved</div><div class="value">${s.approved_count || 0}</div></div>
+      <div class="card"><div class="label">Pending</div><div class="value">${s.pending_count || 0}</div></div>
+    `;
+
+    if (txns.length === 0) {
+      list.innerHTML = '<div class="empty">No transactions in this period</div>';
+      return;
+    }
+
+    list.innerHTML = `
+      <table>
+        <thead><tr><th>Type</th><th>User</th><th>Amount</th><th>Status</th><th>Date</th></tr></thead>
+        <tbody>${txns.map(t => `
+          <tr>
+            <td><span class="txn-type ${t.type}" style="font-size:10px">${t.type==='deposit'?'⬆️ DEP':'⬇️ W/D'}</span></td>
+            <td>${t.first_name || t.username || '-'}</td>
+            <td>${money(t.amount)}</td>
+            <td style="color:${statusColor(t.status)}">${t.status}</td>
+            <td style="font-size:10px;color:#8fa1b3">${fmt(t.created_at)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+  } catch(e){ list.innerHTML = '<div class="empty">❌ ' + e.message + '</div>'; }
+}
+function statusColor(s){ return s==='approved'?'#34d399':s==='pending'?'#fbbf24':'#f87171'; }
+
+// USERS
+async function loadUsers(){
+  try {
+    const d = await api('users');
+    document.getElementById('usersBody').innerHTML = d.users.map(u =>
+      `<tr><td>${u.first_name||u.username||'?'}</td><td>${u.phone_number||'—'}</td><td>${money(u.balance)}</td><td>
+        <span class="mini gold" onclick="adjust('${u.telegram_id}',10)">+10</span>
+        <span class="mini gold" onclick="adjust('${u.telegram_id}',-10)">-10</span>
+        <span class="mini gold" onclick="adjustCustom('${u.telegram_id}')">±</span>
+      </td></tr>`).join('');
+  } catch(e){}
+}
+async function adjust(id, amt){
+  const d = await api('adjust-balance', { method:'POST', body: JSON.stringify({ telegramId: Number(id), amount: amt }) });
+  toast(d.success ? '✅ Balance: ' + money(d.newBalance) : '❌ ' + d.error);
+  loadUsers();
+}
+function adjustCustom(id){ const v = prompt('Amount (+/-):'); if (v) adjust(id, parseFloat(v)); }
+
+async function act(path){ const d = await api(path, { method:'POST', body:'{}' }); toast(d.success ? '✅ Done' : '❌ Failed'); refresh(); }
+async function resetGame(){ if (confirm('⚠️ Full reset?')) await act('game/reset'); }
+
+async function broadcast(){
+  const text = document.getElementById('castText').value.trim();
+  if (!text) return toast('❌ Type message first');
+  toast('📢 Sending...');
+  const d = await api('broadcast', { method:'POST', body: JSON.stringify({ text }) });
+  toast('✅ Sent: ' + d.sent + (d.failed ? ' (failed: '+d.failed+')' : ''));
+  document.getElementById('castText').value = '';
+}
+
+
+// PROMOS
+const PROMO_LABELS = {
+  welcome_bonus: { name: '🎁 Welcome Bonus', desc: 'Free ETB given just for sharing phone number.' },
+  first_deposit_match: { name: '💰 First Deposit Match', desc: 'Bonus % on first deposit (e.g. 100 = 100% bonus). Max cap applies.' },
+  referral_reward: { name: '🤝 Referral Reward', desc: 'ETB given to referrer when their friend makes a first deposit.' },
+  happy_hour_multiplier: { name: '⚡ Happy Hour Multiplier', desc: 'Multiplier for prize pool during special events (e.g. 2 = 2x prizes).' }
+};
+
+async function loadPromos() {
+  const list = document.getElementById('promosList');
+  list.innerHTML = '<div class="empty">Loading...</div>';
+  try {
+    const d = await api('promos');
+    list.innerHTML = d.promos.map(p => {
+      const meta = PROMO_LABELS[p.type] || { name: p.type, desc: '' };
+      const isActive = p.is_active;
+      return `
+        <div style="background:rgba(0,0,0,.25); border:1px solid ${isActive ? 'rgba(16,185,129,.4)' : 'rgba(255,255,255,.08)'}; border-radius:14px; padding:14px; margin-bottom:12px; transition:.3s;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <div style="font-size:15px; font-weight:700; color:${isActive ? '#34d399' : '#e8eef5'};">${meta.name}</div>
+            <label style="position:relative; display:inline-block; width:46px; height:24px;">
+              <input type="checkbox" id="chk_${p.id}" ${isActive ? 'checked' : ''} onchange="togglePromo(${p.id}, this.checked)" style="opacity:0; width:0; height:0;">
+              <span style="position:absolute; cursor:pointer; inset:0; background:${isActive ? '#10b981' : '#374151'}; transition:.3s; border-radius:24px;"></span>
+              <span style="position:absolute; content:''; height:18px; width:18px; left:${isActive ? '24px' : '3px'}; bottom:3px; background:white; transition:.3s; border-radius:50%;"></span>
+            </label>
+          </div>
+          <div style="font-size:11px; color:#8fa1b3; margin-bottom:10px;">${meta.desc}</div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <label style="font-size:11px; color:#aab8c5;">Value:</label>
+            <input type="number" id="val_${p.id}" value="${p.value}" style="width:70px; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.4); color:#fff; font-size:12px;">
+            ${p.max_amount !== null ? '<label style="font-size:11px; color:#aab8c5; margin-left:8px;">Max Cap:</label><input type="number" id="max_' + p.id + '" value="' + p.max_amount + '" style="width:70px; padding:6px; border-radius:6px; border:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.4); color:#fff; font-size:12px;">' : ''}
+            <button class="mini gold" onclick="savePromo(${p.id})" style="margin-left:auto;">💾 Save</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) { list.innerHTML = '<div class="empty">❌ ' + e.message + '</div>'; }
+}
+
+async function togglePromo(id, isActive) {
+  const val = document.getElementById('val_' + id).value;
+  const maxEl = document.getElementById('max_' + id);
+  const max = maxEl ? maxEl.value : null;
+  
+  const d = await api('promos/update', { method:'POST', body: JSON.stringify({ id, is_active: isActive, value: val, max_amount: max }) });
+  toast(d.success ? (isActive ? '✅ Promo Activated!' : '⏸️ Promo Paused') : '❌ ' + d.error);
+  loadPromos();
+}
+
+async function savePromo(id) {
+  const val = document.getElementById('val_' + id).value;
+  const maxEl = document.getElementById('max_' + id);
+  const max = maxEl ? maxEl.value : null;
+  const isActive = document.getElementById('chk_' + id).checked;
+  
+  const d = await api('promos/update', { method:'POST', body: JSON.stringify({ id, is_active: isActive, value: val, max_amount: max }) });
+  toast(d.success ? '✅ Values Saved!' : '❌ ' + d.error);
+}
+
+let poller = null;
+function startPolling(){ refresh(); if (!poller) poller = setInterval(refresh, 3000); }
+
+if (KEY) { api('login',{method:'POST',body:'{}'}).then(()=>{ document.getElementById('login').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); startPolling(); }).catch(()=>{}); }
+</script>
+</body>
+</html>

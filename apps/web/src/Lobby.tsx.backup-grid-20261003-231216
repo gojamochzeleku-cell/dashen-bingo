@@ -1,0 +1,322 @@
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:3000')
+const TELEGRAM_ID = 6814258043
+const DEFAULT_FEE = 10
+const FEE_TIERS = [10, 20, 30, 40, 50]
+const MAX_CARDS = 4
+
+interface PurchasedCard {
+  cardId: number
+  fee: number
+  confirmed: boolean
+}
+
+function Lobby() {
+  const [timeRemaining, setTimeRemaining] = useState(60)
+  const [totalCardsSold, setTotalCardsSold] = useState(0)
+  const [prizePool, setPrizePool] = useState(0)
+  const [gameState, setGameState] = useState('WAITING')
+  
+  // Card selection states
+  const [selectedCards, setSelectedCards] = useState<PurchasedCard[]>([])
+  const [currentFee, setCurrentFee] = useState(DEFAULT_FEE)
+  const [needsConfirmation, setNeedsConfirmation] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [message, setMessage] = useState({ text: '', type: 'success' | 'error' | '' })
+
+  const allCards = Array.from({ length: 400 }, (_, i) => i + 1)
+  const totalCost = selectedCards.reduce((sum, card) => sum + card.fee, 0)
+
+  useEffect(() => {
+    socket.on('game:stats', (data) => {
+      setTimeRemaining(data.timeRemaining)
+      setTotalCardsSold(data.totalCardsSold || 0)
+      setPrizePool(data.prizePool || 0)
+      setGameState(data.state)
+    })
+
+    socket.on('game:sync', (data) => {
+      setTimeRemaining(data.timeRemaining)
+      setGameState(data.state)
+    })
+
+    return () => {
+      socket.off('game:stats')
+      socket.off('game:sync')
+    }
+  }, [])
+
+  // Auto-confirm when fee is 10 ETB
+  const handleCardSelect = async (cardNumber: number) => {
+    if (gameState !== 'WAITING') return
+
+    // Check if already selected
+    const existingIndex = selectedCards.findIndex(c => c.cardId === cardNumber)
+    if (existingIndex !== -1) {
+      // Remove card (refund)
+      await handleCardRefund(cardNumber)
+      return
+    }
+
+    // Check max cards
+    if (selectedCards.length >= MAX_CARDS) {
+      setMessage({ text: `Maximum ${MAX_CARDS} cards allowed!`, type: 'error' })
+      setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+      return
+    }
+
+    setIsProcessing(true)
+
+    try {
+      const response = await fetch('/api/select-cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: TELEGRAM_ID,
+          cardIds: [cardNumber],
+          fee: currentFee, // ✅ FIXED: Now sending the ACTUAL currentFee
+          autoConfirm: currentFee === DEFAULT_FEE
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSelectedCards(prev => [...prev, { cardId: cardNumber, fee: currentFee, confirmed: true }])
+        setMessage({ text: `Card #${cardNumber} purchased for ${currentFee} ETB!`, type: 'success' })
+        setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+      } else {
+        setMessage({ text: `Error: ${data.error}`, type: 'error' })
+        setTimeout(() => setMessage({ text: '', type: '' }), 4000)
+      }
+    } catch (error) {
+      setMessage({ text: 'Network error. Is backend running?', type: 'error' })
+      setTimeout(() => setMessage({ text: '', type: '' }), 4000)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleCardRefund = async (cardNumber: number) => {
+    setIsProcessing(true)
+    
+    try {
+      const cardToRefund = selectedCards.find(c => c.cardId === cardNumber)
+      if (!cardToRefund) return
+
+      const response = await fetch('/api/refund-card', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: TELEGRAM_ID,
+          cardId: cardNumber
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setSelectedCards(prev => prev.filter(c => c.cardId !== cardNumber))
+        setMessage({ text: `Card #${cardNumber} refunded ${cardToRefund.fee} ETB!`, type: 'success' })
+        setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+      }
+    } catch (error) {
+      console.error('Refund error:', error)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const handleFeeChange = (delta: number) => {
+    const currentIndex = FEE_TIERS.indexOf(currentFee)
+    const newIndex = currentIndex + delta
+    
+    if (newIndex >= 0 && newIndex < FEE_TIERS.length) {
+      const newFee = FEE_TIERS[newIndex]
+      
+      // If increasing fee and have selected cards, require confirmation
+      if (newFee > currentFee && selectedCards.length > 0) {
+        setCurrentFee(newFee)
+        setNeedsConfirmation(true)
+        setMessage({ 
+          text: `Fee increased to ${newFee} ETB. Click CONFIRM to update ${selectedCards.length} card(s).`, 
+          type: 'success' 
+        })
+      } else {
+        setCurrentFee(newFee)
+        setNeedsConfirmation(false)
+        setMessage({ text: '', type: '' })
+      }
+    }
+  }
+
+  const confirmFeeIncrease = async () => {
+    if (selectedCards.length === 0) {
+      setNeedsConfirmation(false)
+      setMessage({ text: '', type: '' })
+      return
+    }
+
+    setIsProcessing(true)
+    
+    try {
+      // Calculate additional cost
+      const oldTotal = selectedCards.reduce((sum, card) => sum + card.fee, 0)
+      const newTotal = selectedCards.length * currentFee
+      const additionalCost = newTotal - oldTotal
+
+      const response = await fetch('/api/update-card-fee', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: TELEGRAM_ID,
+          cardIds: selectedCards.map(c => c.cardId),
+          newFee: currentFee,
+          additionalCost: additionalCost
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        // Update selected cards with new fee
+        setSelectedCards(prev => prev.map(card => ({
+          ...card,
+          fee: currentFee,
+          confirmed: true
+        })))
+        setNeedsConfirmation(false)
+        setMessage({ text: `Fee updated! Additional ${additionalCost} ETB charged.`, type: 'success' })
+        setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+      } else {
+        setMessage({ text: `Error: ${data.error}`, type: 'error' })
+        setTimeout(() => setMessage({ text: '', type: '' }), 4000)
+      }
+    } catch (error) {
+      setMessage({ text: 'Network error during fee update', type: 'error' })
+      setTimeout(() => setMessage({ text: '', type: '' }), 4000)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  const cancelFeeIncrease = () => {
+    setNeedsConfirmation(false)
+    setCurrentFee(DEFAULT_FEE)
+    setMessage({ text: 'Fee increase cancelled', type: 'error' })
+    setTimeout(() => setMessage({ text: '', type: '' }), 3000)
+  }
+
+  return (
+    <div className="lobby-container">
+      <h1 className="neon-title">🎱 DASHEN BINGO</h1>
+
+      {/* Statistics Bar */}
+      <div className="stats-bar">
+        <div className="stat-box">
+          <span className="stat-label">Cards Sold</span>
+          <span className="stat-value">{totalCardsSold}</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Time</span>
+          <span className="stat-value timer">{timeRemaining}s</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Prize Pool</span>
+          <span className="stat-value">{prizePool.toFixed(0)} ETB</span>
+        </div>
+      </div>
+
+      {/* Fee Selector */}
+      <div className="fee-selector">
+        <span className="fee-label">CARD FEE</span>
+        <div className="fee-controls">
+          <button 
+            className="fee-btn" 
+            onClick={() => handleFeeChange(-1)}
+            disabled={currentFee === FEE_TIERS[0] || isProcessing}
+          >
+            −
+          </button>
+          <span className="fee-value">{currentFee} ETB</span>
+          <button 
+            className="fee-btn" 
+            onClick={() => handleFeeChange(1)}
+            disabled={currentFee === FEE_TIERS[FEE_TIERS.length - 1] || isProcessing}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* Message Display */}
+      {message.text && (
+        <div className={`purchase-message ${message.type}`}>
+          {message.text}
+        </div>
+      )}
+
+      {/* Confirmation Buttons */}
+      {needsConfirmation && (
+        <div className="confirmation-buttons">
+          <button className="confirm-btn" onClick={confirmFeeIncrease} disabled={isProcessing}>
+            {isProcessing ? 'Processing...' : `CONFIRM ${currentFee} ETB × ${selectedCards.length}`}
+          </button>
+          <button className="cancel-btn" onClick={cancelFeeIncrease} disabled={isProcessing}>
+            CANCEL
+          </button>
+        </div>
+      )}
+
+      {/* Cards Grid */}
+      <div className="cards-section">
+        <p className="cards-info">
+          SELECT YOUR CARDS ({selectedCards.length}/{MAX_CARDS})
+          {currentFee > DEFAULT_FEE && !needsConfirmation && ' • Auto-confirm at 10 ETB'}
+        </p>
+        <div className="cards-grid">
+          {allCards.map(cardNum => {
+            const isSelected = selectedCards.some(c => c.cardId === cardNum)
+            return (
+              <button
+                key={cardNum}
+                className={`card-btn ${isSelected ? 'selected' : ''}`}
+                onClick={() => handleCardSelect(cardNum)}
+                disabled={gameState !== 'WAITING' || isProcessing}
+              >
+                {cardNum}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Selected Cards List */}
+      {selectedCards.length > 0 && (
+        <div className="selected-cards">
+          <h3>Selected Cards (Total: {totalCost} ETB):</h3>
+          <div className="selected-list">
+            {selectedCards.map(card => (
+              <span key={card.cardId} className="selected-chip">
+                #{card.cardId} ({card.fee} ETB)
+                <button 
+                  onClick={() => handleCardRefund(card.cardId)}
+                  disabled={isProcessing}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
+          <p className="refund-note">
+            💡 Click any card to refund instantly. Changes allowed until timer ends.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Lobby

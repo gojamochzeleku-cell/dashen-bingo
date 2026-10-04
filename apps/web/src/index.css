@@ -1,0 +1,1175 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #0a0e1a;
+  color: #e2e8f0;
+  overflow-x: hidden;
+}
+
+.app-container {
+  min-height: 100vh;
+}
+
+/* ========================================
+   LOBBY STYLES
+======================================== */
+
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #0a0e1a;
+  z-index: 100;
+  padding: 10px;
+  border-bottom: 1px solid #1e293b;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.compact-stats-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.mini-stat {
+  flex: 1;
+  text-align: center;
+  background: #1e293b;
+  padding: 5px 2px;
+  border-radius: 6px;
+}
+
+.mini-stat .label {
+  display: block;
+  font-size: 0.6rem;
+  color: #94a3b8;
+}
+
+.mini-stat .val {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.val.green { color: #10b981; }
+.val.yellow { color: #fbbf24; }
+.val.blue { color: #00f3ff; }
+.val.purple { color: #a855f7; }
+
+.compact-fee-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  background: #1e293b;
+  padding: 6px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.fee-label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.mini-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: #334155;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mini-btn:disabled {
+  opacity: 0.3;
+}
+
+.fee-display {
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #fbbf24;
+  min-width: 50px;
+  text-align: center;
+}
+
+.selected-numbers-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 30px;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-text {
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+.selected-chip {
+  background: #00f3ff;
+  color: #0a0e1a;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chip-close {
+  background: none;
+  border: none;
+  color: #0a0e1a;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.confirm-inline {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-left: 5px;
+}
+
+.toast {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.toast.error {
+  background: rgba(239, 68, 68, 0.9);
+}
+
+.scrollable-grid-area {
+  margin-top: 140px;
+  height: calc(100vh - 140px);
+  overflow-y: auto;
+  padding: 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cards-grid-8-modern {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.card-btn-modern {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.card-btn-modern.sold {
+  background: #ff1a1a;
+  border: 2px solid #ff1a1a;
+  color: white;
+  font-weight: bold;
+  box-shadow: 0 0 15px #ff1a1a, 0 0 30px rgba(255, 26, 26, 0.5);
+  cursor: not-allowed;
+}
+
+.card-btn-modern.selected-user {
+  background: #00f3ff;
+  border: 1px solid #00f3ff;
+  color: #0a0e1a;
+  font-weight: bold;
+  box-shadow: 0 0 10px #00f3ff;
+}
+
+/* ========================================
+   LIVE GAME - EXACT SCREENSHOT MATCH
+======================================== */
+
+.live-game-layout {
+  background: #0a0e1a;
+  min-height: 100vh;
+  padding: 8px;
+  color: white;
+}
+
+/* 5 Stats Boxes */
+.live-stats-bar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.live-stat-box {
+  background: rgba(20, 25, 40, 0.9);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 8px 4px;
+  text-align: center;
+}
+
+.live-stat-label {
+  display: block;
+  font-size: 0.55rem;
+  color: #8892a4;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.live-stat-value {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.live-stat-value.green { color: #00e676; }
+.live-stat-value.blue { color: #00bcd4; }
+.live-stat-value.yellow { color: #ffeb3b; }
+.live-stat-value.purple { color: #ce93d8; }
+.live-stat-value.orange { color: #ff9800; }
+
+/* Two Column Layout */
+.live-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  height: calc(100vh - 90px);
+}
+
+/* LEFT COLUMN - BINGO Board */
+.live-left-column {
+  background: rgba(15, 20, 35, 0.95);
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+.current-number-display {
+  text-align: center;
+  margin-bottom: 10px;
+  padding: 12px 8px;
+  background: rgba(0,0,0,0.4);
+  border-radius: 12px;
+  border: 1px solid rgba(236, 72, 153, 0.4);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.2);
+}
+
+.current-number-big {
+  font-size: 4rem;
+  font-weight: 900;
+  color: #ec4899;
+  text-shadow: 0 0 20px rgba(236, 72, 153, 0.9), 0 0 40px rgba(236, 72, 153, 0.5);
+  letter-spacing: 4px;
+  line-height: 1;
+}
+
+.current-label {
+  font-size: 0.65rem;
+  color: #8892a4;
+  letter-spacing: 3px;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+.bingo-board-headers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  margin-bottom: 4px;
+  padding: 0 2px;
+}
+
+.bingo-letter {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.bingo-letter.b { color: #ffeb3b; }
+.bingo-letter.i { color: #00e676; }
+.bingo-letter.n { color: #2196f3; }
+.bingo-letter.g { color: #f44336; }
+.bingo-letter.o { color: #ce93d8; }
+
+.bingo-board-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  flex: 1;
+}
+
+.board-number {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 35, 50, 0.6);
+  border-radius: 50%;
+  font-size: 0.65rem;
+  color: #8892a4;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: all 0.3s;
+  font-weight: 600;
+}
+
+.board-number.called {
+  background: #ec4899;
+  color: white;
+  font-weight: 900;
+  box-shadow: 0 0 10px rgba(236, 72, 153, 0.9), 0 0 20px rgba(236, 72, 153, 0.5);
+  border-color: #ec4899;
+  font-size: 0.7rem;
+}
+
+/* RIGHT COLUMN - Player Cards */
+.live-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: calc(100vh - 90px);
+  padding-right: 4px;
+}
+
+.live-right-column::-webkit-scrollbar {
+  width: 4px;
+}
+
+.live-right-column::-webkit-scrollbar-thumb {
+  background: rgba(236, 72, 153, 0.3);
+  border-radius: 2px;
+}
+
+.no-cards-message {
+  text-align: center;
+  color: #8892a4;
+  padding: 20px;
+  font-size: 0.9rem;
+}
+
+.player-card {
+  background: rgba(15, 20, 35, 0.95);
+  border-radius: 10px;
+  padding: 8px;
+  border: 1px solid rgba(255,255,255,0.05);
+  flex-shrink: 0;
+}
+
+.player-card-title {
+  text-align: center;
+  font-size: 0.65rem;
+  color: #8892a4;
+  margin-bottom: 6px;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.card-bingo-headers {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.card-letter {
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+.card-letter.b { color: #ffeb3b; }
+.card-letter.i { color: #00e676; }
+.card-letter.n { color: #2196f3; }
+.card-letter.g { color: #f44336; }
+.card-letter.o { color: #ce93d8; }
+
+.card-grid-5x5 {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+}
+
+.card-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(30, 35, 50, 0.6);
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #c0c8d8;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.card-cell.free {
+  background: #00e676;
+  color: #0a0e1a;
+  font-weight: 900;
+  font-size: 0.6rem;
+}
+
+.card-cell.matched {
+  background: #00e676;
+  color: #0a0e1a;
+  font-weight: 900;
+  box-shadow: 0 0 8px rgba(0, 230, 118, 0.7);
+  border-color: #00e676;
+}
+
+/* Winner Modal */
+.winner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.winner-modal {
+  background: white;
+  color: #0a0e1a;
+  padding: 30px;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 350px;
+}
+
+.winner-modal h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #ec4899;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .live-two-columns {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  
+  .current-number-big {
+    font-size: 2.8rem;
+  }
+  
+  .live-stat-value {
+    font-size: 0.9rem;
+  }
+  
+  .live-stat-label {
+    font-size: 0.5rem;
+  }
+  
+  .board-number {
+    font-size: 0.55rem;
+  }
+  
+  .card-cell {
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .current-number-big {
+    font-size: 2.2rem;
+  }
+  
+  .live-stat-value {
+    font-size: 0.8rem;
+  }
+}
+
+.no-cards-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #8892a4;
+  background: rgba(15, 20, 35, 0.95);
+  border-radius: 12px;
+  border: 2px dashed rgba(255,255,255,0.1);
+}
+
+.no-cards-icon {
+  font-size: 4rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.no-cards-message h3 {
+  font-size: 1.2rem;
+  color: #e2e8f0;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.no-cards-message p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.no-cards-hint {
+  background: rgba(0, 243, 255, 0.1);
+  border: 1px solid rgba(0, 243, 255, 0.3);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 0.85rem;
+  color: #00f3ff;
+}
+
+/* Updated Current Number Display Styles */
+.current-number-big {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.current-number-big .number-display {
+  color: #ec4899;
+  text-shadow: 0 0 20px rgba(236, 72, 153, 0.9), 0 0 40px rgba(236, 72, 153, 0.5);
+  letter-spacing: 2px;
+}
+
+.current-number-big .bingo-letter-display {
+  font-size: 3.5rem;
+  font-weight: 900;
+}
+
+/* Letter Colors matching the columns */
+.letter-b { color: #ffeb3b; text-shadow: 0 0 15px rgba(255, 235, 59, 0.8); }
+.letter-i { color: #00e676; text-shadow: 0 0 15px rgba(0, 230, 118, 0.8); }
+.letter-n { color: #2196f3; text-shadow: 0 0 15px rgba(33, 150, 243, 0.8); }
+.letter-g { color: #f44336; text-shadow: 0 0 15px rgba(244, 67, 54, 0.8); }
+.letter-o { color: #ce93d8; text-shadow: 0 0 15px rgba(206, 147, 216, 0.8); }
+
+@media (max-width: 600px) {
+  .current-number-big { font-size: 3rem; gap: 10px; }
+  .current-number-big .bingo-letter-display { font-size: 2.8rem; }
+}
+
+/* 🔴 Bright Red Neon Progress Indicator (For EVERY completed pattern) */
+.card-cell.pattern-complete {
+  background: #ff1a1a !important;
+  color: white !important;
+  font-weight: 900 !important;
+  border: 2px solid #ff1a1a !important;
+  box-shadow: 0 0 15px #ff1a1a, 0 0 30px rgba(255, 26, 26, 0.6) !important;
+  animation: patternPulse 1.5s infinite alternate;
+}
+
+@keyframes patternPulse {
+  0% { box-shadow: 0 0 10px #ff1a1a, 0 0 20px rgba(255, 26, 26, 0.4); }
+  100% { box-shadow: 0 0 25px #ff1a1a, 0 0 50px rgba(255, 26, 26, 0.9); }
+}
+
+/* ========================================
+   NEW WINNER MODAL - MATCHES SCREENSHOT
+======================================== */
+
+.winner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.winner-modal-new {
+  background: white;
+  border-radius: 16px;
+  padding: 30px 25px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+  from { transform: translateY(50px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.winner-modal-title {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+}
+
+.winner-modal-subtitle {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.winner-announcement {
+  font-size: 1.1rem;
+  color: #1a1a1a;
+  margin-bottom: 25px;
+  font-weight: 500;
+}
+
+.winner-name {
+  font-weight: 900;
+  color: #000;
+}
+
+/* Winner Card Display */
+.winner-card-display {
+  display: inline-block;
+  margin-bottom: 20px;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.winner-card-header {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: #f97316; /* Orange */
+  gap: 1px;
+}
+
+.winner-header-letter {
+  padding: 10px 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: white;
+  text-align: center;
+}
+
+.winner-card-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: #e5e7eb;
+}
+
+.winner-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e293b; /* Dark blue-gray */
+  color: #e2e8f0;
+  font-size: 1rem;
+  font-weight: 700;
+  min-width: 45px;
+}
+
+.winner-cell.free-cell {
+  background: #10b981; /* Green for FREE */
+  color: white;
+}
+
+.winner-cell.marked-cell {
+  background: #10b981; /* Bright green for marked */
+  color: white;
+}
+
+/* 🔥 The last winning number blinks */
+.winner-cell.last-winning-number {
+  background: #10b981;
+  color: white;
+  animation: blinkWinner 0.8s infinite alternate;
+  box-shadow: 0 0 15px #10b981;
+}
+
+@keyframes blinkWinner {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0.3; transform: scale(1.1); }
+}
+
+.redirect-countdown {
+  font-size: 0.95rem;
+  color: #4b5563;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* 🔴 Apply the bright red neon glow to the winner modal cells */
+.winner-cell.pattern-complete {
+  background: #ff1a1a !important;
+  color: white !important;
+  font-weight: 900 !important;
+  border: 2px solid #ff1a1a !important;
+  box-shadow: 0 0 15px #ff1a1a, 0 0 30px rgba(255, 26, 26, 0.6) !important;
+  animation: patternPulse 1.5s infinite alternate;
+}
+
+.lobby-timer-wrapper {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  margin: 5px auto 10px auto;
+}
+
+.lobby-timer-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.1));
+}
+
+.lobby-timer-bg {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 8;
+}
+
+.lobby-timer-progress {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+}
+
+.lobby-timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+  transition: color 0.5s ease;
+}
+
+/* Urgent pulse animation for last 10 seconds */
+.lobby-timer-text.pulse-urgent {
+  animation: timerPulse 0.8s infinite alternate;
+}
+
+@keyframes timerPulse {
+  0% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 10px currentColor; }
+  100% { transform: translate(-50%, -50%) scale(1.15); text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+}
+/* ========================================
+   PREMIUM CIRCULAR COUNTDOWN TIMER (COMPACT)
+======================================== */
+.lobby-timer-wrapper {
+  position: relative;
+  width: 55px;
+  height: 55px;
+  margin: 0 auto 5px auto;
+}
+
+.lobby-timer-svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 2px rgba(255,255,255,0.1));
+}
+
+.lobby-timer-bg {
+  fill: none;
+  stroke: #1e293b;
+  stroke-width: 4;
+}
+
+.lobby-timer-progress {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1s linear, stroke 0.5s ease;
+}
+
+.lobby-timer-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  transition: color 0.5s ease;
+}
+
+/* Urgent pulse animation for last 10 seconds */
+.lobby-timer-text.pulse-urgent {
+  animation: timerPulse 0.8s infinite alternate;
+}
+
+@keyframes timerPulse {
+  0% { transform: translate(-50%, -50%) scale(1); text-shadow: 0 0 5px currentColor; }
+  100% { transform: translate(-50%, -50%) scale(1.15); text-shadow: 0 0 10px currentColor, 0 0 15px currentColor; }
+}
+
+/* ========================================
+   PREMIUM WINNER MODAL
+======================================== */
+.winner-overlay-premium {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeInOverlay 0.4s ease-out;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.winner-modal-premium {
+  position: relative;
+  background: linear-gradient(145deg, #ffffff 0%, #f3f4f6 100%);
+  border-radius: 24px;
+  padding: 35px 30px;
+  max-width: 380px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  animation: slideUpModal 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes slideUpModal {
+  from { transform: translateY(40px) scale(0.95); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.winner-glow-bg {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 26, 26, 0.08) 0%, transparent 60%);
+  pointer-events: none;
+  animation: rotateGlow 10s linear infinite;
+}
+
+@keyframes rotateGlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.winner-modal-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #111827;
+  margin: 0 0 8px 0;
+  position: relative;
+}
+
+.winner-modal-subtitle {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0 0 24px 0;
+  line-height: 1.4;
+  position: relative;
+}
+
+.winner-announcement {
+  font-size: 1.05rem;
+  color: #374151;
+  margin-bottom: 24px;
+  font-weight: 500;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.winner-name {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #111827;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.winner-card-badge {
+  background: #111827;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.winner-action {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+/* Premium Card Display */
+.winner-card-display-premium {
+  display: inline-block;
+  margin-bottom: 24px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  position: relative;
+  transform: perspective(1000px) rotateX(2deg);
+  transition: transform 0.3s ease;
+}
+
+.winner-card-display-premium:hover {
+  transform: perspective(1000px) rotateX(0deg) scale(1.02);
+}
+
+.winner-card-header-premium {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+  gap: 1px;
+}
+
+.winner-header-letter {
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: white;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.winner-card-grid-premium {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1px;
+  background: #374151;
+}
+
+.winner-cell-premium {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1f2937;
+  color: #9ca3af;
+  font-size: 1.05rem;
+  font-weight: 700;
+  min-width: 48px;
+  transition: all 0.3s ease;
+}
+
+.winner-cell-premium.free-cell-premium {
+  background: #10b981;
+  color: white;
+  font-size: 1.2rem;
+}
+
+/* 🔥 PREMIUM LED PATTERN GLOW */
+.winner-cell-premium.pattern-complete-premium {
+  background: #ff1a1a !important;
+  color: white !important;
+  font-weight: 900 !important;
+  border: none !important;
+  box-shadow: 
+    0 0 10px #ff1a1a, 
+    0 0 20px rgba(255, 26, 26, 0.6),
+    inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+  animation: premiumLedPulse 1.5s ease-in-out infinite alternate;
+  z-index: 10;
+}
+
+@keyframes premiumLedPulse {
+  0% { 
+    box-shadow: 0 0 8px #ff1a1a, 0 0 15px rgba(255, 26, 26, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.2);
+    transform: scale(1);
+  }
+  100% { 
+    box-shadow: 0 0 15px #ff1a1a, 0 0 30px rgba(255, 26, 26, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.4);
+    transform: scale(1.05);
+  }
+}
+
+/* Premium Countdown */
+.redirect-countdown-premium {
+  position: relative;
+}
+
+.redirect-countdown-premium p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 500;
+}
+
+.redirect-countdown-premium strong {
+  color: #ff1a1a;
+  font-weight: 900;
+  font-size: 1.1rem;
+}
+
+.countdown-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+
+.countdown-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff1a1a, #f97316);
+  border-radius: 2px;
+  transition: width 1s linear;
+}
+
+/* 🔥 Black to Red Blinking Effect for the Last Winning Number */
+
+  100% {
+    background: #ff1a1a !important; /* Bright Red */
+    color: #ffffff !important;
+    box-shadow: 0 0 20px #ff1a1a, 0 0 40px rgba(255, 26, 26, 0.8) !important;
+    transform: scale(1.15);
+  }
+}
+
+/* ✨ PREMIUM GOLDEN HALO PULSE for the Last Winning Number */
+.winner-cell-premium.golden-halo-pulse {
+  background: #ff1a1a !important; /* Stays red to match the winning pattern */
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  border: 2px solid #fbbf24 !important; /* Elegant Gold Border */
+  animation: goldenHaloPulse 2s ease-in-out infinite alternate;
+  z-index: 20;
+  position: relative;
+}
+
+@keyframes goldenHaloPulse {
+  0% {
+    box-shadow: 
+      0 0 8px #fbbf24, 
+      0 0 15px rgba(251, 191, 36, 0.4), 
+      inset 0 0 5px rgba(255, 255, 255, 0.2);
+    transform: scale(1);
+  }
+  100% {
+    box-shadow: 
+      0 0 20px #fbbf24, 
+      0 0 40px rgba(251, 191, 36, 0.8), 
+      inset 0 0 15px rgba(255, 255, 255, 0.4);
+    transform: scale(1.08);
+  }
+}
+
+/* ✨ MAXIMUM FORCE GOLDEN HALO PULSE */
+.winner-cell-premium.golden-halo-pulse {
+  background: #ff1a1a !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  border: 2px solid #fbbf24 !important;
+  box-shadow: 0 0 20px #fbbf24, 0 0 40px rgba(251, 191, 36, 0.8) !important;
+  animation: goldenHaloPulse 1.5s ease-in-out infinite alternate !important;
+  z-index: 20 !important;
+  position: relative !important;
+}
+
+@keyframes goldenHaloPulse {
+  0% { 
+    box-shadow: 0 0 10px #fbbf24, 0 0 20px rgba(251, 191, 36, 0.5) !important; 
+    transform: scale(1) !important; 
+  }
+  100% { 
+    box-shadow: 0 0 25px #fbbf24, 0 0 50px rgba(251, 191, 36, 1) !important; 
+    transform: scale(1.1) !important; 
+  }
+}
+
+/* ✨ NEON GREEN THICK BORDER OVERRIDE */
+.winner-cell-premium.golden-halo-pulse {
+  border: 6px solid #39ff14 !important; /* 3x thicker Neon Green boundary */
+  box-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57, 255, 20, 0.8) !important; /* Matching Neon Green glow */
+  animation: neonGreenPulse 1.5s ease-in-out infinite alternate !important;
+}
+
+@keyframes neonGreenPulse {
+  0% { 
+    box-shadow: 0 0 10px #39ff14, 0 0 20px rgba(57, 255, 20, 0.5) !important; 
+    transform: scale(1) !important; 
+  }
+  100% { 
+    box-shadow: 0 0 30px #39ff14, 0 0 60px rgba(57, 255, 20, 1) !important; 
+    transform: scale(1.1) !important; 
+  }
+}
+
+/* ✨ NEON GREEN THICK BORDER OVERRIDE */
+.winner-cell-premium.golden-halo-pulse {
+  border: 6px solid #39ff14 !important; /* 3x thicker Neon Green boundary */
+  box-shadow: 0 0 20px #39ff14, 0 0 40px rgba(57, 255, 20, 0.8) !important; /* Matching Neon Green glow */
+  animation: neonGreenPulse 1.5s ease-in-out infinite alternate !important;
+}
+
+@keyframes neonGreenPulse {
+  0% { 
+    box-shadow: 0 0 10px #39ff14, 0 0 20px rgba(57, 255, 20, 0.5) !important; 
+    transform: scale(1) !important; 
+  }
+  100% { 
+    box-shadow: 0 0 30px #39ff14, 0 0 60px rgba(57, 255, 20, 1) !important; 
+    transform: scale(1.1) !important; 
+  }
+}

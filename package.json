@@ -1,0 +1,35 @@
+{
+  "name": "dashen-bingo",
+  "version": "1.0.0",
+  "description": "Dashen Bingo Telegram Mini App",
+  "private": true,
+  "scripts": {
+    "dev:api": "tsx apps/api/src/server.ts",
+    "build": "tsc",
+    "test": "echo \"Running tests...\"",
+    "build:api": "echo \"No build step needed\"",
+    "start:api": "tsx apps/api/src/server.ts"
+  },
+  "keywords": [
+    "bingo",
+    "telegram",
+    "mini-app"
+  ],
+  "author": "Dashen Bingo Team",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "pg": "^8.16.3",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^22.10.0",
+    "@types/pg": "^8.15.4",
+    "tsx": "^4.23.15",
+    "typescript": "^5.6.3"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "dashen-bingo-bot",
+  "version": "1.0.0",
+  "description": "Dashen Bingo Telegram Bot",
+  "main": "src/bot.ts",
+  "scripts": {
+    "dev": "tsx src/bot.ts",
+    "start": "tsx src/bot.ts"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.5",
+    "node-telegram-bot-api": "^0.66.0",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/node-telegram-bot-api": "^0.64.7",
+    "tsx": "^4.19.2"
+  }
+}

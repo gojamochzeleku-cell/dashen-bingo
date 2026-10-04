@@ -1,0 +1,149 @@
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:3000')
+
+// Fee tiers
+const FEE_TIERS = [10, 20, 30, 40, 50]
+const MAX_CARDS = 4
+
+function Lobby() {
+  const [timeRemaining, setTimeRemaining] = useState(60)
+  const [totalCardsSold, setTotalCardsSold] = useState(0)
+  const [selectedCards, setSelectedCards] = useState<number[]>([])
+  const [selectedFee, setSelectedFee] = useState(10)
+  const [gameState, setGameState] = useState('WAITING')
+  const [prizePool, setPrizePool] = useState(0)
+
+  // Generate 400 cards (in real app, this comes from API)
+  const allCards = Array.from({ length: 400 }, (_, i) => i + 1)
+
+  useEffect(() => {
+    socket.on('game:stats', (data) => {
+      setTimeRemaining(data.timeRemaining)
+      setTotalCardsSold(data.totalCardsSold || 0)
+      setGameState(data.state)
+      
+      // Calculate prize pool: total cards × average fee × 0.8 (20% commission)
+      const estimatedPool = (data.totalCardsSold || 0) * selectedFee * 0.8
+      setPrizePool(estimatedPool)
+    })
+
+    socket.on('game:sync', (data) => {
+      setTimeRemaining(data.timeRemaining)
+      setGameState(data.state)
+    })
+
+    return () => {
+      socket.off('game:stats')
+      socket.off('game:sync')
+    }
+  }, [selectedFee])
+
+  const toggleCard = (cardNumber: number) => {
+    if (gameState !== 'WAITING') return
+    
+    setSelectedCards(prev => {
+      if (prev.includes(cardNumber)) {
+        return prev.filter(c => c !== cardNumber)
+      }
+      if (prev.length >= MAX_CARDS) {
+        alert(`Maximum ${MAX_CARDS} cards allowed!`)
+        return prev
+      }
+      return [...prev, cardNumber]
+    })
+  }
+
+  const changeFee = (delta: number) => {
+    const currentIndex = FEE_TIERS.indexOf(selectedFee)
+    const newIndex = currentIndex + delta
+    if (newIndex >= 0 && newIndex < FEE_TIERS.length) {
+      setSelectedFee(FEE_TIERS[newIndex])
+    }
+  }
+
+  return (
+    <div className="lobby-container">
+      {/* Header */}
+      <h1 className="neon-title">🎱 DASHEN BINGO</h1>
+
+      {/* Statistics Bar */}
+      <div className="stats-bar">
+        <div className="stat-box">
+          <span className="stat-label">Players</span>
+          <span className="stat-value">{Math.floor(totalCardsSold / 2.5)}</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Time</span>
+          <span className="stat-value timer">{timeRemaining}s</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Prize Pool</span>
+          <span className="stat-value">{prizePool.toFixed(0)} ETB</span>
+        </div>
+      </div>
+
+      {/* Fee Selector */}
+      <div className="fee-selector">
+        <span className="fee-label">CARD FEE</span>
+        <div className="fee-controls">
+          <button 
+            className="fee-btn" 
+            onClick={() => changeFee(-1)}
+            disabled={selectedFee === FEE_TIERS[0]}
+          >
+            −
+          </button>
+          <span className="fee-value">{selectedFee} ETB</span>
+          <button 
+            className="fee-btn" 
+            onClick={() => changeFee(1)}
+            disabled={selectedFee === FEE_TIERS[FEE_TIERS.length - 1]}
+          >
+            +
+          </button>
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="cards-section">
+        <p className="cards-info">
+          SELECT YOUR CARDS ({selectedCards.length}/{MAX_CARDS})
+        </p>
+        <div className="cards-grid">
+          {allCards.map(cardNum => {
+            const isSelected = selectedCards.includes(cardNum)
+            return (
+              <button
+                key={cardNum}
+                className={`card-btn ${isSelected ? 'selected' : ''}`}
+                onClick={() => toggleCard(cardNum)}
+                disabled={gameState !== 'WAITING'}
+              >
+                {cardNum}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Selected Cards Display */}
+      {selectedCards.length > 0 && (
+        <div className="selected-cards">
+          <h3>Selected Cards:</h3>
+          <div className="selected-list">
+            {selectedCards.map(card => (
+              <span key={card} className="selected-chip">
+                #{card}
+                <button onClick={() => toggleCard(card)}>×</button>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Lobby

@@ -1,0 +1,133 @@
+import express from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+import dotenv from 'dotenv';
+import { GameEngine } from './gameEngine';
+import { pool } from './lib/database';
+
+dotenv.config();
+
+const app = express();
+app.use(express.json()); // Allow JSON body parsing
+
+const server = http.createServer(app);
+const io = new Server(server, { cors: { origin: "*" } });
+
+const PORT = process.env.PORT || 3000;
+const gameEngine = new GameEngine(io);
+
+// ==========================================
+// SECURE CARD SELECTION ENDPOINT
+// ==========================================
+app.post('/api/select-cards', async (req, res) => {
+  const { telegramId, cardIds, fee } = req.body;
+
+  if (!telegramId || !cardIds || !Array.isArray(cardIds) || !fee) {
+    return res.status(400).json({ error: 'Missing required fields' });
+  }
+
+  if (cardIds.length > 4) {
+    return res.status(400).json({ error: 'Maximum 4 cards allowed' });
+  }
+
+  const totalCost = cardIds.length * fee;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // 1. Get or create user
+    let userId: number;
+    const userResult = await client.query('SELECT id FROM users WHERE telegram_id = $1', [telegramId]);
+    if (userResult.rows.length === 0) {
+      const newUser = await client.query(
+        'INSERT INTO users (telegram_id, username, first_name, role) VALUES ($1, $2, $3, $4) RETURNING id',
+        [telegramId, 'WebUser', 'WebUser', 'PLAYER']
+      );
+      userId = newUser.rows[0].id;
+      await client.query('INSERT INTO wallets (user_id, balance) VALUES ($1, $2)', [userId, 0]);
+    } else {
+      userId = userResult.rows[0].id;
+    }
+
+    // 2. Lock the wallet row to prevent race conditions
+    const walletResult = await client.query(
+      'SELECT id, balance FROM wallets WHERE user_id = $1 FOR UPDATE',
+      [userId]
+    );
+
+    if (walletResult.rows.length === 0) {
+      throw new Error('Wallet not found');
+    }
+
+    const currentBalance = parseFloat(walletResult.rows[0].balance);
+
+    // 3. Check sufficient funds
+    if (currentBalance < totalCost) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: `Insufficient funds. Required: ${totalCost} ETB, Available: ${currentBalance} ETB` });
+    }
+
+    // 4. Deduct balance
+    await client.query(
+      'UPDATE wallets SET balance = balance - $1 WHERE id = $2',
+      [totalCost, walletResult.rows[0].id]
+    );
+
+    // 5. Create ledger entry
+    await client.query(
+      'INSERT INTO wallet_ledger (wallet_id, amount, type, description) VALUES ($1, $2, $3, $4)',
+      [walletResult.rows[0].id, -totalCost, 'GAME_FEE', `Purchased ${cardIds.length} cards at ${fee} ETB each`]
+    );
+
+    // 6. Reserve cards in game_cards table
+    for (const cardId of cardIds) {
+      await client.query(
+        'INSERT INTO game_cards (game_id, user_id, bingo_card_id, fee_paid) VALUES (1, $1, $2, $3)',
+        [userId, cardId, fee]
+      );
+    }
+
+    // 7. Update global game stats (mock game_id = 1 for now)
+    await client.query(
+      'UPDATE games SET total_cards_sold = total_cards_sold + $1, prize_pool = prize_pool + $2, commission = commission + $3 WHERE id = 1',
+      [cardIds.length, totalCost * 0.8, totalCost * 0.2]
+    );
+
+    await client.query('COMMIT');
+    
+    // Broadcast updated stats to all players
+    io.emit('game:stats', {
+      state: gameEngine.getCurrentState().state,
+      timeRemaining: gameEngine.getCurrentState().timeRemaining,
+      totalCardsSold: gameEngine.getCurrentState().totalCardsSold + cardIds.length // Simplified for demo
+    });
+
+    res.json({ success: true, message: `Successfully purchased ${cardIds.length} cards for ${totalCost} ETB` });
+
+  } catch (error: any) {
+    await client.query('ROLLBACK');
+    console.error('❌ Card selection failed:', error.message);
+    res.status(500).json({ error: 'Internal server error during purchase' });
+  } finally {
+    client.release();
+  }
+});
+
+// Health check
+app.get('/', (req, res) => {
+  res.json({ status: 'Dashen Bingo API is running!', game: 'active' });
+});
+
+// WebSocket connection handler
+io.on('connection', (socket) => {
+  console.log('✅ Player connected:', socket.id);
+  socket.emit('game:sync', gameEngine.getCurrentState());
+  socket.on('disconnect', () => {
+    console.log('❌ Player disconnected:', socket.id);
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`🚀 Server is running on http://localhost:${PORT}`);
+});

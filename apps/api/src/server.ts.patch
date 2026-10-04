@@ -1,0 +1,16 @@
+--- a/apps/api/src/server.ts
++++ b/apps/api/src/server.ts
+@@ -85,6 +85,11 @@ app.post('/api/select-cards', async (req, res) => {
+     await client.query('COMMIT');
+     
+     // Broadcast updated stats to all players
++    const gameStats = await client.query('SELECT total_cards_sold, prize_pool FROM games WHERE id = 1');
+     io.emit('game:stats', {
+       state: gameEngine.getCurrentState().state,
+       timeRemaining: gameEngine.getCurrentState().timeRemaining,
+-      totalCardsSold: gameEngine.getCurrentState().totalCardsSold + cardIds.length // Simplified for demo
++      totalCardsSold: gameStats.rows[0].total_cards_sold,
++      prizePool: gameStats.rows[0].prize_pool
+     });
+ 
+     res.json({ success: true, message: `Successfully purchased ${cardIds.length} cards for ${totalCost} ETB` });

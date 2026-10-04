@@ -1,0 +1,197 @@
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:3000')
+
+// TEMPORARY: Hardcoded for local testing. In production, this comes from Telegram WebApp init data.
+const TELEGRAM_ID = 6814258043;
+
+const FEE_TIERS = [10, 20, 30, 40, 50]
+const MAX_CARDS = 4
+
+function Lobby() {
+  const [timeRemaining, setTimeRemaining] = useState(60)
+  const [totalCardsSold, setTotalCardsSold] = useState(0)
+  const [selectedCards, setSelectedCards] = useState<number[]>([])
+  const [selectedFee, setSelectedFee] = useState(10)
+  const [gameState, setGameState] = useState('WAITING')
+  
+  // New states for purchasing
+  const [isPurchasing, setIsPurchasing] = useState(false)
+  const [purchaseMessage, setPurchaseMessage] = useState('')
+  const [messageType, setMessageType] = useState<'success' | 'error' | ''>('')
+
+  const allCards = Array.from({ length: 400 }, (_, i) => i + 1)
+  const totalCost = selectedCards.length * selectedFee
+
+  useEffect(() => {
+    socket.on('game:stats', (data) => {
+      setTimeRemaining(data.timeRemaining)
+      setTotalCardsSold(data.totalCardsSold || 0)
+      setGameState(data.state)
+    })
+
+    socket.on('game:sync', (data) => {
+      setTimeRemaining(data.timeRemaining)
+      setGameState(data.state)
+    })
+
+    return () => {
+      socket.off('game:stats')
+      socket.off('game:sync')
+    }
+  }, [])
+
+  const toggleCard = (cardNumber: number) => {
+    if (gameState !== 'WAITING') return
+    
+    setSelectedCards(prev => {
+      if (prev.includes(cardNumber)) {
+        return prev.filter(c => c !== cardNumber)
+      }
+      if (prev.length >= MAX_CARDS) {
+        alert(`Maximum ${MAX_CARDS} cards allowed!`)
+        return prev
+      }
+      return [...prev, cardNumber]
+    })
+    // Clear message when selection changes
+    setPurchaseMessage('')
+    setMessageType('')
+  }
+
+  const changeFee = (delta: number) => {
+    const currentIndex = FEE_TIERS.indexOf(selectedFee)
+    const newIndex = currentIndex + delta
+    if (newIndex >= 0 && newIndex < FEE_TIERS.length) {
+      setSelectedFee(FEE_TIERS[newIndex])
+      setPurchaseMessage('')
+      setMessageType('')
+    }
+  }
+
+  const handlePurchase = async () => {
+    if (selectedCards.length === 0) {
+      setPurchaseMessage('Please select at least 1 card.')
+      setMessageType('error')
+      return
+    }
+
+    setIsPurchasing(true)
+    setPurchaseMessage('Processing purchase...')
+    setMessageType('')
+
+    try {
+      const response = await fetch('http://localhost:3000/api/select-cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramId: TELEGRAM_ID,
+          cardIds: selectedCards,
+          fee: selectedFee
+        })
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setPurchaseMessage(`✅ Success! ${data.message}`)
+        setMessageType('success')
+        // Optional: Clear selection after successful purchase
+        // setSelectedCards([]) 
+      } else {
+        setPurchaseMessage(`❌ Error: ${data.error}`)
+        setMessageType('error')
+      }
+    } catch (error) {
+      setPurchaseMessage('❌ Network error. Is the backend running?')
+      setMessageType('error')
+      console.error(error)
+    } finally {
+      setIsPurchasing(false)
+    }
+  }
+
+  return (
+    <div className="lobby-container">
+      <h1 className="neon-title">🎱 DASHEN BINGO</h1>
+
+      {/* Statistics Bar */}
+      <div className="stats-bar">
+        <div className="stat-box">
+          <span className="stat-label">Cards Sold</span>
+          <span className="stat-value">{totalCardsSold}</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Time</span>
+          <span className="stat-value timer">{timeRemaining}s</span>
+        </div>
+        <div className="stat-box">
+          <span className="stat-label">Prize Pool</span>
+          <span className="stat-value">{(totalCardsSold * 10 * 0.8).toFixed(0)} ETB</span>
+        </div>
+      </div>
+
+      {/* Fee Selector */}
+      <div className="fee-selector">
+        <span className="fee-label">CARD FEE</span>
+        <div className="fee-controls">
+          <button className="fee-btn" onClick={() => changeFee(-1)} disabled={selectedFee === FEE_TIERS[0]}>−</button>
+          <span className="fee-value">{selectedFee} ETB</span>
+          <button className="fee-btn" onClick={() => changeFee(1)} disabled={selectedFee === FEE_TIERS[FEE_TIERS.length - 1]}>+</button>
+        </div>
+      </div>
+
+      {/* Purchase Message */}
+      {purchaseMessage && (
+        <div className={`purchase-message ${messageType}`}>
+          {purchaseMessage}
+        </div>
+      )}
+
+      {/* Cards Grid */}
+      <div className="cards-section">
+        <p className="cards-info">SELECT YOUR CARDS ({selectedCards.length}/{MAX_CARDS})</p>
+        <div className="cards-grid">
+          {allCards.map(cardNum => {
+            const isSelected = selectedCards.includes(cardNum)
+            return (
+              <button
+                key={cardNum}
+                className={`card-btn ${isSelected ? 'selected' : ''}`}
+                onClick={() => toggleCard(cardNum)}
+                disabled={gameState !== 'WAITING'}
+              >
+                {cardNum}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Selected Cards & Confirm Button */}
+      {selectedCards.length > 0 && (
+        <div className="selected-cards">
+          <h3>Selected Cards (Total: {totalCost} ETB):</h3>
+          <div className="selected-list">
+            {selectedCards.map(card => (
+              <span key={card} className="selected-chip">
+                #{card}
+                <button onClick={() => toggleCard(card)}>×</button>
+              </span>
+            ))}
+          </div>
+          <button 
+            className="confirm-btn" 
+            onClick={handlePurchase}
+            disabled={isPurchasing || gameState !== 'WAITING'}
+          >
+            {isPurchasing ? 'Processing...' : `CONFIRM & PAY ${totalCost} ETB`}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default Lobby

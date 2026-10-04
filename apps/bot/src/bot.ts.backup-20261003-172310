@@ -1,0 +1,206 @@
+import TelegramBot from 'node-telegram-bot-api';
+import dotenv from 'dotenv';
+import { getOrCreateUser, getUserBalance, addFunds } from './lib/database';
+
+dotenv.config({ path: '../../.env' });
+
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+  console.error('❌ TELEGRAM_BOT_TOKEN is missing in .env file!');
+  process.exit(1);
+}
+
+const bot = new TelegramBot(token, { polling: true });
+
+console.log(' [BOT] Dashen Bingo Bot is starting...');
+
+// Cache for user IDs (telegramId -> userId)
+const userCache = new Map<number, number>();
+
+// Helper: Get or create user and cache the ID
+async function ensureUser(telegramId: number, username: string, firstName: string): Promise<number> {
+  if (userCache.has(telegramId)) {
+    return userCache.get(telegramId)!;
+  }
+  const userId = await getOrCreateUser(telegramId, username, firstName);
+  userCache.set(telegramId, userId);
+  return userId;
+}
+
+// 1. /start command
+bot.onText(/\/start/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from?.id || 0;
+  const username = msg.from?.username || 'Unknown';
+  const firstName = msg.from?.first_name || 'Player';
+
+  // Create/update user in database
+  const userId = await ensureUser(telegramId, username, firstName);
+  const balance = await getUserBalance(userId);
+
+  const welcomeMessage = `
+🎱 *Welcome to Dashen Bingo, ${firstName}!* 
+
+👤 *Account*
+Username: @${username}
+User ID: ${userId}
+
+💰 *Balance*
+Current: ${balance.toFixed(2)} ETB
+Pending: 0.00 ETB
+
+Test your luck and win big! Use the menu below:
+  `.trim();
+
+  bot.sendMessage(chatId, welcomeMessage, {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: ' Play Game', web_app: { url: 'https://your-vercel-url.com' } }],
+        [{ text: '💰 My Balance', callback_data: 'check_balance' }],
+        [{ text: '📥 Deposit', callback_data: 'deposit' }],
+        [{ text: '📤 Withdrawal', callback_data: 'withdrawal' }]
+      ]
+    }
+  });
+});
+
+// 2. /balance command
+bot.onText(/\/balance/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from?.id || 0;
+  const username = msg.from?.username || 'Unknown';
+
+  const userId = await ensureUser(telegramId, username, msg.from?.first_name || 'Player');
+  const balance = await getUserBalance(userId);
+
+  const balanceMessage = `
+👤 *Account*
+Username: @${username}
+
+💰 *Balance*
+Current: ${balance.toFixed(2)} ETB
+Pending: 0.00 ETB
+  `.trim();
+
+  bot.sendMessage(chatId, balanceMessage, { parse_mode: 'Markdown' });
+});
+
+// 3. /deposit command
+bot.onText(/\/deposit/, (msg) => {
+  const chatId = msg.chat.id;
+
+  const depositMessage = `
+💳 *Deposit Funds*
+
+Please transfer the amount to our official bank account:
+
+🏦 *Bank:* Commercial Bank of Ethiopia (CBE)
+👤 *Account Name:* DASHEN BINGO PLC
+🔢 *Account Number:* 1000123456789
+
+📌 *Minimum Deposit:* 10 ETB
+
+*How to verify your deposit:*
+1. Make the transfer from your bank app.
+2. Take a screenshot of the success message/SMS.
+3. Send the screenshot or transaction ID to this chat.
+4. Our admin will verify and credit your wallet within 5 minutes!
+  `.trim();
+
+  bot.sendMessage(chatId, depositMessage, { parse_mode: 'Markdown' });
+});
+
+// 4. /withdrawal command
+bot.onText(/\/withdrawal/, (msg) => {
+  const chatId = msg.chat.id;
+
+  const withdrawalMessage = `
+📤 *Withdrawal*
+
+Withdrawal feature is coming soon! For now, please contact support.
+  `.trim();
+
+  bot.sendMessage(chatId, withdrawalMessage, { parse_mode: 'Markdown' });
+});
+
+// 5. /addfunds command (TESTING ONLY - remove before production)
+bot.onText(/\/addfunds/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from?.id || 0;
+  const username = msg.from?.username || 'Unknown';
+
+  const userId = await ensureUser(telegramId, username, msg.from?.first_name || 'Player');
+
+  // Add 500 ETB for testing
+  await addFunds(userId, 500, 'Test funds added via /addfunds command');
+
+  const newBalance = await getUserBalance(userId);
+
+  bot.sendMessage(chatId, `✅ *Test Funds Added!*\n\nNew Balance: ${newBalance.toFixed(2)} ETB`, {
+    parse_mode: 'Markdown'
+  });
+});
+
+// Handle inline button clicks
+bot.on('callback_query', async (query) => {
+  const chatId = query.message?.chat.id;
+  const data = query.data;
+  const from = query.from;
+  const telegramId = from.id || 0;
+  const username = from.username || 'Unknown';
+
+  if (data === 'check_balance') {
+    await bot.answerCallbackQuery(query.id, { text: 'Fetching your balance...' });
+
+    const userId = await ensureUser(telegramId, username, from.first_name || 'Player');
+    const balance = await getUserBalance(userId);
+
+    const balanceMessage = `
+👤 *Account*
+Username: @${username}
+
+💰 *Balance*
+Current: ${balance.toFixed(2)} ETB
+Pending: 0.00 ETB
+    `.trim();
+
+    await bot.sendMessage(chatId, balanceMessage, { parse_mode: 'Markdown' });
+
+  } else if (data === 'deposit') {
+    await bot.answerCallbackQuery(query.id, { text: 'Opening deposit instructions...' });
+
+    const depositMessage = `
+💳 *Deposit Funds*
+
+Please transfer the amount to our official bank account:
+
+🏦 *Bank:* Commercial Bank of Ethiopia (CBE)
+ *Account Name:* DASHEN BINGO PLC
+🔢 *Account Number:* 1000123456789
+
+📌 *Minimum Deposit:* 10 ETB
+
+*How to verify your deposit:*
+1. Make the transfer from your bank app.
+2. Take a screenshot of the success message/SMS.
+3. Send the screenshot or transaction ID to this chat.
+4. Our admin will verify and credit your wallet within 5 minutes!
+    `.trim();
+
+    await bot.sendMessage(chatId, depositMessage, { parse_mode: 'Markdown' });
+
+  } else if (data === 'withdrawal') {
+    await bot.answerCallbackQuery(query.id, { text: 'Opening withdrawal...' });
+
+    const withdrawalMessage = `
+📤 *Withdrawal*
+
+Withdrawal feature is coming soon! For now, please contact support.
+    `.trim();
+
+    await bot.sendMessage(chatId, withdrawalMessage, { parse_mode: 'Markdown' });
+  }
+});
+
+console.log('✅ [BOT] Bot is running and connected to Neon database!');

@@ -1,0 +1,164 @@
+import { Server } from 'socket.io';
+
+const LOBBY_DURATION_SEC = 60;
+const NUMBER_CALL_INTERVAL_SEC = 4; // Sped up slightly for testing
+const MAX_NUMBERS_TO_CALL = 75;
+const BOT_COUNT = 100;
+
+// Helper to generate a valid 5x5 Bingo card
+function generateBingoCard() {
+  const ranges = [[1,15], [16,30], [31,45], [46,60], [61,75]];
+  const card: (number | null)[][] = Array(5).fill(null).map(() => Array(5).fill(null));
+  
+  for (let col = 0; col < 5; col++) {
+    const [min, max] = ranges[col];
+    const nums: number[] = [];
+    while (nums.length < 5) {
+      const n = Math.floor(Math.random() * (max - min + 1)) + min;
+      if (!nums.includes(n)) nums.push(n);
+    }
+    for (let row = 0; row < 5; row++) card[row][col] = nums[row];
+  }
+  card[2][2] = null; // FREE space
+  return card;
+}
+
+// Helper to check if a card has a Bingo (Row, Column, or Diagonal)
+function checkBingo(card: (number | null)[][], marked: Set<number>): boolean {
+  // Check rows
+  for (let r = 0; r < 5; r++) {
+    let win = true;
+    for (let c = 0; c < 5; c++) {
+      if (card[r][c] !== null && !marked.has(card[r][c])) win = false;
+    }
+    if (win) return true;
+  }
+  // Check columns
+  for (let c = 0; c < 5; c++) {
+    let win = true;
+    for (let r = 0; r < 5; r++) {
+      if (card[r][c] !== null && !marked.has(card[r][c])) win = false;
+    }
+    if (win) return true;
+  }
+  // Check diagonals
+  let d1 = true, d2 = true;
+  for (let i = 0; i < 5; i++) {
+    if (card[i][i] !== null && !marked.has(card[i][i])) d1 = false;
+    if (card[i][4 - i] !== null && !marked.has(card[i][4 - i])) d2 = false;
+  }
+  return d1 || d2;
+}
+
+export class GameEngine {
+  private io: Server;
+  private state: 'WAITING' | 'CALLING' | 'COMPLETED' = 'WAITING';
+  private timeRemaining: number = LOBBY_DURATION_SEC;
+  private calledNumbers: number[] = [];
+  private timerInterval: NodeJS.Timeout | null = null;
+  private totalCardsSold = 0;
+  private botCardsSelected = 0;
+  
+  // Mock bot cards to test winner detection
+  private botCards: { id: string; grid: (number | null)[][] }[] = [];
+
+  constructor(io: Server) {
+    this.io = io;
+    this.startLobby();
+  }
+
+  private startLobby() {
+    this.state = 'WAITING';
+    this.timeRemaining = LOBBY_DURATION_SEC;
+    this.calledNumbers = [];
+    this.totalCardsSold = 0;
+    this.botCardsSelected = 0;
+    this.botCards = Array.from({ length: 5 }, (_, i) => ({
+      id: `BOT-CARD-${i + 1}`,
+      grid: generateBingoCard()
+    }));
+
+    console.log('🎮 [GAME ENGINE] Lobby started. 60 seconds to select cards.');
+    this.simulateBotActivity();
+
+    this.timerInterval = setInterval(() => {
+      this.timeRemaining--;
+      this.io.emit('game:stats', {
+        state: this.state,
+        timeRemaining: this.timeRemaining,
+        totalCardsSold: this.totalCardsSold + this.botCardsSelected,
+      });
+
+      if (this.timeRemaining <= 0) this.startCallingNumbers();
+    }, 1000);
+  }
+
+  private simulateBotActivity() {
+    let botsProcessed = 0;
+    const botInterval = setInterval(() => {
+      if (this.state !== 'WAITING' || botsProcessed >= BOT_COUNT) {
+        clearInterval(botInterval);
+        return;
+      }
+      this.botCardsSelected += Math.floor(Math.random() * 4) + 1;
+      botsProcessed++;
+    }, 500);
+  }
+
+  private startCallingNumbers() {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.state = 'CALLING';
+    console.log('📢 [GAME ENGINE] Lobby closed. Starting to call numbers!');
+    this.io.emit('game:stateChange', { state: 'CALLING' });
+
+    let numbersCalledCount = 0;
+    const markedNumbers = new Set<number>();
+
+    this.timerInterval = setInterval(() => {
+      if (numbersCalledCount >= MAX_NUMBERS_TO_CALL) {
+        this.endGame(false, null);
+        return;
+      }
+
+      let newNumber: number;
+      do {
+        newNumber = Math.floor(Math.random() * 75) + 1;
+      } while (this.calledNumbers.includes(newNumber));
+
+      this.calledNumbers.push(newNumber);
+      markedNumbers.add(newNumber);
+      numbersCalledCount++;
+
+      console.log(` [GAME ENGINE] Called Number: ${newNumber} (${numbersCalledCount}/${MAX_NUMBERS_TO_CALL})`);
+      this.io.emit('game:numberCalled', { number: newNumber, calledNumbers: this.calledNumbers });
+
+      // Check if any bot card won
+      for (const card of this.botCards) {
+        if (checkBingo(card.grid, markedNumbers)) {
+          console.log(` [GAME ENGINE] BINGO DETECTED on ${card.id}!`);
+          this.endGame(true, card);
+          return;
+        }
+      }
+    }, NUMBER_CALL_INTERVAL_SEC * 1000);
+  }
+
+  private endGame(hasWinner: boolean, winningCard: any) {
+    if (this.timerInterval) clearInterval(this.timerInterval);
+    this.state = 'COMPLETED';
+    
+    this.io.emit('game:completed', {
+      hasWinner,
+      winner: hasWinner ? {
+        name: 'Bot Player (18)',
+        cardId: winningCard.id,
+        grid: winningCard.grid
+      } : null
+    });
+
+    setTimeout(() => {
+      console.log('🔄 [GAME ENGINE] Restarting game loop...');
+      this.startLobby();
+    }, 15000); // 15 seconds to show the modal
+  }
+}

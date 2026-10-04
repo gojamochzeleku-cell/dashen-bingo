@@ -1,0 +1,100 @@
+import TelegramBot from 'node-telegram-bot-api';
+import dotenv from 'dotenv';
+
+dotenv.config({ path: '../../.env' });
+
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+  console.error('❌ TELEGRAM_BOT_TOKEN is missing in .env file!');
+  process.exit(1);
+}
+
+// Initialize the bot
+const bot = new TelegramBot(token, { polling: true });
+
+console.log('🤖 [BOT] Dashen Bingo Bot is starting...');
+
+// 1. /start command
+bot.onText(/\/start/, (msg) => {
+  const chatId = msg.chat.id;
+  const firstName = msg.from?.first_name || 'Player';
+  
+  const welcomeMessage = `
+🎱 *Welcome to Dashen Bingo, ${firstName}!* 🎱
+
+Test your luck and win big! 
+
+Use the menu below to get started:
+  `.trim();
+
+  bot.sendMessage(chatId, welcomeMessage, {
+    parse_mode: 'Markdown',
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: '🎮 Play Game', web_app: { url: 'https://your-vercel-url.com' } }],
+        [{ text: '💰 My Balance', callback_data: 'check_balance' }],
+        [{ text: '📥 Deposit', callback_data: 'deposit' }],
+        [{ text: '📤 Withdrawal', callback_data: 'withdrawal' }]
+      ]
+    }
+  });
+});
+
+// 2. /balance command
+bot.onText(/\/balance/, async (msg) => {
+  const chatId = msg.chat.id;
+  const telegramId = msg.from?.id;
+  
+  // TODO: Query Neon database for this user's wallet balance
+  // For now, we show a placeholder
+  bot.sendMessage(chatId, `👤 *Account*\nUsername: @${msg.from?.username || 'Unknown'}\n\n💰 *Balance*\nCurrent: 0.00 ETB\nPending: 0.00 ETB`, {
+    parse_mode: 'Markdown'
+  });
+});
+
+// 3. /deposit command
+bot.onText(/\/deposit/, (msg) => {
+  const chatId = msg.chat.id;
+  const depositMessage = `
+💳 *Deposit Funds*
+
+Please transfer the amount to our official bank account:
+
+🏦 *Bank:* Commercial Bank of Ethiopia (CBE)
+👤 *Account Name:* DASHEN BINGO PLC
+🔢 *Account Number:* 1000123456789
+
+📌 *Minimum Deposit:* 10 ETB
+
+*How to verify your deposit:*
+1. Make the transfer from your bank app.
+2. Take a screenshot of the success message/SMS.
+3. Send the screenshot or transaction ID to this chat.
+4. Our admin will verify and credit your wallet within 5 minutes!
+  `.trim();
+
+  bot.sendMessage(chatId, depositMessage, { parse_mode: 'Markdown' });
+});
+
+// 4. /withdrawal command
+bot.onText(/\/withdrawal/, (msg) => {
+  const chatId = msg.chat.id;
+  bot.sendMessage(chatId, `📤 *Withdrawal*\n\nWithdrawal feature is coming soon! For now, please contact support.`, { parse_mode: 'Markdown' });
+});
+
+// Handle inline button clicks
+bot.on('callback_query', (query) => {
+  const chatId = query.message?.chat.id;
+  const data = query.data;
+
+  if (data === 'check_balance') {
+    bot.answerCallbackQuery(query.id, { text: 'Fetching your balance...' });
+    // Trigger the balance logic
+    bot.emit('text', { chat: { id: chatId }, from: query.from, text: '/balance' });
+  } else if (data === 'deposit') {
+    bot.answerCallbackQuery(query.id, { text: 'Opening deposit instructions...' });
+    bot.emit('text', { chat: { id: chatId }, from: query.from, text: '/deposit' });
+  }
+});
+
+console.log('✅ [BOT] Bot is running and listening for commands!');
