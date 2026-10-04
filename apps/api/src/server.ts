@@ -1,3 +1,4 @@
+import cors from "cors";
 import express from 'express';
 import { createTransactionsRouter } from "./transactions";
 import { createAdminRouter } from "./adminRoutes";
@@ -10,10 +11,11 @@ import { pool } from './lib/database';
 dotenv.config();
 
 const app = express();
+app.use(cors({ origin: true }));
 app.use(express.json());
 
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: "*" } });
+const io = new Server(server, { cors: { origin: true } });
 
 const PORT = process.env.PORT || 3000;
 const gameEngine = new GameEngine(io, pool);

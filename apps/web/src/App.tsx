@@ -1,9 +1,10 @@
+import { API_BASE } from "./apiBase";
 import { useState, useEffect } from 'react'
 import Lobby from './Lobby'
 import LiveGame from './LiveGame'
 import { io } from 'socket.io-client'
 
-const socket = io()
+const socket = io(API_BASE)
 
 function App() {
   // Default to WAITING, but this will update instantly on connect

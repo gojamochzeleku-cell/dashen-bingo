@@ -1,7 +1,8 @@
+import { API_BASE } from "./apiBase";
 import { useEffect, useState, useRef } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io()
+const socket = io(API_BASE)
 function resolveTgId(): number {
   const w = window as any;
   const real = w.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -64,7 +65,7 @@ function LiveGame() {
   }
 
   useEffect(() => {
-    fetch(`/api/my-cards?telegramId=${TELEGRAM_ID}`)
+    fetch(API_BASE + `/api/my-cards?telegramId=${TELEGRAM_ID}`)
       .then(r => r.json())
       .then(data => {
         if (data.cards) {

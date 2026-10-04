@@ -1,7 +1,8 @@
+import { API_BASE } from "./apiBase";
 import { useEffect, useState, useCallback } from 'react'
 import { io } from 'socket.io-client'
 
-const socket = io()
+const socket = io(API_BASE)
 function resolveTgId(): number {
   const w = window as any;
   const real = w.Telegram?.WebApp?.initDataUnsafe?.user?.id;
@@ -56,7 +57,7 @@ function Lobby() {
 
   const fetchWalletBalance = async () => {
     try {
-      const response = await fetch(`/api/wallet-balance?telegramId=${TELEGRAM_ID}`)
+      const response = await fetch(API_BASE + `/api/wallet-balance?telegramId=${TELEGRAM_ID}`)
       const data = await response.json()
       if (data.balance !== undefined) setWalletBalance(data.balance)
     } catch (error) { console.error(error) }
@@ -90,7 +91,7 @@ function Lobby() {
       
       if (cardToRefund) {
         setWalletBalance(prev => prev + cardToRefund.fee)
-        fetch('/api/refund-card', {
+        fetch(API_BASE + '/api/refund-card', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ telegramId: TELEGRAM_ID, cardId: cardNumber })
@@ -127,7 +128,7 @@ function Lobby() {
     setSoldCardIds(prev => new Set(prev).add(cardNumber))
     setWalletBalance(prev => prev - currentFee)
 
-    fetch('/api/select-cards', {
+    fetch(API_BASE + '/api/select-cards', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ telegramId: TELEGRAM_ID, cardIds: [cardNumber], fee: currentFee })
@@ -157,7 +158,7 @@ function Lobby() {
     try {
       const oldTotal = selectedCards.reduce((sum, card) => sum + card.fee, 0)
       const additionalCost = (selectedCards.length * currentFee) - oldTotal
-      const response = await fetch('/api/update-card-fee', {
+      const response = await fetch(API_BASE + '/api/update-card-fee', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ telegramId: TELEGRAM_ID, cardIds: selectedCards.map(c => c.cardId), newFee: currentFee, additionalCost })
       })
