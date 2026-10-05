@@ -1417,3 +1417,36 @@ html, body, #root { height: 100%; }
   border: 1px solid #34d399 !important;
   color: #d1fae5 !important;
 }
+
+/* ===== WINNER MODAL FINAL ADJUSTMENTS ===== */
+
+/* 1. Reduce winner name size back to normal (undo the massive 3rem) */
+.winner-name {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+/* 2. Bright Red Neon for Card Badge */
+.winner-card-badge {
+  font-size: 1.2rem !important;
+  color: #ff0000 !important; /* Pure bright red */
+  border: 2px solid #ff0000 !important;
+  text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 0 0 40px #ff0000 !important;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.4) !important;
+  animation: brightRedNeonPulse 1.5s infinite ease-in-out !important;
+}
+
+@keyframes brightRedNeonPulse {
+  0%, 100% {
+    text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6), inset 0 0 10px rgba(255, 0, 0, 0.4);
+    border-color: #ff0000;
+  }
+  50% {
+    text-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 80px #ff0000;
+    box-shadow: 0 0 30px rgba(255, 0, 0, 1), 0 0 60px rgba(255, 0, 0, 0.5), inset 0 0 20px rgba(255, 0, 0, 0.6);
+    border-color: #ff4d4d;
+  }
+}
