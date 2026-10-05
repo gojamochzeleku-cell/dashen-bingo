@@ -1,3 +1,4 @@
+import "./dummy_server";
 import TelegramBot from 'node-telegram-bot-api';
 import dotenv from 'dotenv';
 import { getOrCreateUser, getUserBalance } from './lib/database';
