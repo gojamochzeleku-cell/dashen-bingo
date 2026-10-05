@@ -44,6 +44,34 @@ body {
   margin-bottom: 10px;
 }
 
+/* ===== COMPACT LOBBY HEADER ===== */
+.lobby-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 5px;
+}
+
+.lobby-timer-wrapper {
+  position: relative !important;
+  width: 60px !important;
+  height: 60px !important;
+  margin: 0 !important;
+  flex-shrink: 0;
+}
+
+.lobby-timer-text {
+  font-size: 1.2rem !important;
+}
+
+.compact-fee-row {
+  margin: 0 !important;
+  flex: 1;
+}
+
+
 .mini-stat {
   flex: 1;
   text-align: center;

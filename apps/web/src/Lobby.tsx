@@ -187,6 +187,7 @@ function Lobby() {
           <div className="mini-stat"><span className="label">Prize</span><span className="val purple">{Math.floor(prizePool)} ETB</span></div>
         </div>
 
+        <div className="lobby-header-row">
         <div className="lobby-timer-wrapper">
           <svg className="lobby-timer-svg" viewBox="0 0 50 50">
             <circle className="lobby-timer-bg" cx="25" cy="25" r={radius} />
@@ -204,13 +205,13 @@ function Lobby() {
             {timeRemaining}s
           </div>
         </div>
-
         <div className="compact-fee-row">
           <span className="fee-label">Fee:</span>
           <button className="mini-btn" onClick={() => handleFeeChange(-1)} disabled={currentFee === 10 || isProcessing}>-</button>
           <span className="fee-display">{currentFee} ETB</span>
           <button className="mini-btn" onClick={() => handleFeeChange(1)} disabled={currentFee === 50 || isProcessing}>+</button>
         </div>
+      </div>
 
         <div className="selected-numbers-row">
           {selectedCards.length === 0 ? (
