@@ -162,7 +162,7 @@ function LiveGame() {
             <div className="no-cards-message">
               <div className="no-cards-icon"></div><h3>ምንም ካርቴላ አልገዙም።</h3>
               <p>ይህ ጨዋታ እስኪጠናቀቅ ይጠብቁ፤ በሚጥለው ዙር እድልዎን ይሞክሩ!</p>
-              <div className="no-cards-hint">።</div>
+              
             </div>
           ) : (
             myCards.map((card) => {
