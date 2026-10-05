@@ -1,3 +1,4 @@
+import { BOT_NAMES } from './botNames';
 import { Server } from 'socket.io';
 
 const LOBBY_DURATION_SEC = 60;
@@ -5,22 +6,7 @@ const NUMBER_CALL_INTERVAL_SEC = 4;
 const MAX_NUMBERS_TO_CALL = 75;
 const TARGET_TOTAL_CARDS = 150;
 
-const BOT_NAMES = [
-  "Abebe", "Tigist", "Kebede", "Almaz", "Dawit", "Hanna", "Yonas", "Sara",
-  "Mulugeta", "Frehiwot", "Tadesse", "Meron", "Getachew", "Liya", "Solomon",
-  "Bethlehem", "Assefa", "Genet", "Haile", "Selam", "Girma", "Tsehay", "Fikru",
-  "Worknesh", "Bekele", "Aster", "Tesfaye", "Hiwot", "Mengesha", "Tirunesh",
-  "Eshetu", "Meseret", "Abdi", "Fatuma", "Jemal", "Zewditu", "Kassa", "Lema",
-  "Lemma", "Alem", "Hailu", "Taye", "Gashaw", "Bizunesh", "Demissie", "Kefyalew",
-  "Lul", "Mekonnen", "Nigussie", "Petros", "Rahel", "Samuel", "Tewodros",
-  "Uguch", "Violet", "Wondimu", "Xavier", "Yohannes", "Zerihun", "Abera",
-  "Birtukan", "Chaltu", "Daniel", "Eleni", "Fasil", "Gudina", "Hirut", "Iyasu",
-  "Jabu", "Kalkidan", "Lidya", "Mulu", "Nahom", "Oda", "Paulos", "Qalab",
-  "Roba", "Sisay", "Tolosa", "Ummed", "Vera", "Wondwossen", "Xolani", "Yared",
-  "Zeray", "Addis", "Bilen", "Cebela", "Desta", "Elias", "Fikre", "Gebre",
-  "Hagos", "Ibrahim", "Johar", "Kedir", "Lemi", "Mulualem", "Nardos", "Omar",
-  "Peniel", "Rahel", "Samrawit", "Tewodros", "Urael", "Venus", "Wondimagegn"
-];
+
 
 function generateBingoCard() {
   const ranges = [[1,15], [16,30], [31,45], [46,60], [61,75]];

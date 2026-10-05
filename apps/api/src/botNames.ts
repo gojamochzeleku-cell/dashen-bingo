@@ -1,0 +1,22 @@
+export const BOT_NAMES: string[] = [
+  "ይህም_ያልፋል", "nati_man", "miki_king", "danny_Cherkos", "abiy_abebe", "henok_fikadu", "kidu22", "roba_roma", "nahom-bethel", "caleb_6kilo",
+  "ሳሚ_መርከው", "ቴዲ_ጉዛራ", "አንዳንዴማ_እንብላ", "eyob_ድንቡሼ", "bereket_7", "አሴ-አርሴ", "dawit_22", "ዮናስ_መርከቤ", "kidus_yohannes", "ማን_ይነካኛል",
+  "ሀኒቾ", "ሳሪቲ-የ21", "መልካሙ", "eden_arsenal", "mahi_kura", "ruth_syoum", "jemila_yimam", "halido", "tsegish_wukro", "rahel_gebeyehu",
+  "marta_belay", "hiwi_223344", "tsion_kiross", "ብሬ++++", "ኦዶ_የማሚ", "kidisty_x", "ዮርዲ587", "hiluf967", "lidiya_mastewal", "selam_04",
+  "abdi*****", "hamza444", "wasu_hussu", "ibro_mohammed", "omii_ummi", "selim777", "iman1122", "bilal_M", "nuri_Hu", "khalu_xx",
+  "faris88", "anbesaw", "mussa_ሙሳ", "abdul_ፈታህ", "jamal_ነብሮ", "musti_ቤተል", "omar_ፈረንጁ", "yusuf###+++", "mohሃመድየ", "ibra_k",
+  "ዮኒ_የሰው_ማኛ", "ናቲ_ማንሲቲ", "ኪ_ዩናይትድ", "ዳኒ_ይ2233", "አቤ_አለልኝ", "የእስራኤል_አምላክ", "ናሆም_ቤዝ", "ዊት_ጥበቡ", "አቤል_የሩፋኤሉ", "ዘመዴነህ88",
+  "ሮቤላ_22", "ቃል_17", "ሳሙኤል_ገ/", "ዲዮስ_7", "ኤዮ14", "በረከት_ነብዩ", "አማኑ880", "ዮናታ_17", "ካሌ_++", "ማኖ_21",
+  "ሀና_7", "ሚሚ_ሚካኤል", "ሰብለየ27", "መርከብ87", "ማሂ_መልካሙ", "ሩቲ55555", "ቢኒኒኒ", "ምራን001", "ራሄብ99988", "ደሞ+ጀመረኝ",
+  "ህላ_ባባ", "ጽዮንያዊት80", "ተውኝ_አትነካኩኝ", "ሰላሜ_ነሽ", "ማህሌት123", "ወጉ_ይድረሰን", "ዳናዊት99", "ፍሬሂወት14", "ኤደን_ማርቆስ", "በላይነህ++++///",
+  "እድላት8585", "tofik_erzik", "ወሎ_መጀን", "dani_bekky", "abuki123", "zeyneb_A", "Addis_work67", "dawud_faisel", "kirubel8545", "Mubarak77777",
+  "zedingil8090", "samson_tibe6", "teddy_andu", "bere_kidu", "aman_beaman", "zeleke", "yonas🎂🎂🎂", "dinku🍝", "food_is_good", "Dinberu_d",
+  "almaz_alelign", "redet_icecream", "228899Adu", "+++++🍱🍱", "Atoze3585", "Call-Me🤳🤳", "እ_ማንነኝ???", "betty_ጂ", "ጎሳ_ማን", "kejelaa67",
+  "mebre89", "hiwet_Nigussu", "samiya_Nuru", "BelyeⒽⓋⓌ", "Zehara🧕🧕🧕🧕", "Mimisha👸👸👸", "yuftahe_12", "zenaw_gojew", "selam_Berihun", "Ferha_Tsion",
+  "abdulkadir🌛🌛", "hamza_Shemsu", "Nebyat_2594", "Solomon_Babu", "omar_Nuru4", "Seni_Shire14", "ahmed_Oumer", "bilal_Al👳‍♂️", "nurie_Shiraro8", "Amdom_8047",
+  "Getaw_kitaw", "yuti_Buti90", "Bura_Bure34", "Abdela_Mahfuz5", "Seada_Musa22", "mustafa_Endris55", "Endris_Kemil00", "Berhanemeskel5643", "mohamed_nuru44", "yasino_Kemal",
+  "yoniboy99", "natikid33", "miki_xomal", "daniel_Kingdom4", "abeyboy28", "nahom_kid22", "kido_bolo88", "roby_nas44", "Locked_Face11", "Unkown_Identity29",
+  "hanny_girl77", "samiri_Behaylu", "Getenesh_Abebaw", "eden_girl23", "Made_In_China", "Asmerom8574", "Tilahun_Habesha", "Ruth_Shire", "ሚሊን_21", "galataa_b",
+  "tolaa_17", "jireenyaa888", "milkii9900", "hawwii_b554", "nagaa_k77", "gammachuu_7", "boontuu_345", "libaan_887766", "sumaya_hibo", "deeqa_04",
+  "Tadesse_21 🌿", "Lemlem_7 🌸", "Fikru_B ✨", "Mekdes_22 🌺", "Amanuel_X 🙏", "Hanna_17 💕", "Tigist_B 🌼", "Desta_21 😊", "Mulu_7 🌻", "Kebede_X 🦋", "Sisay_22 🔥"
+];
