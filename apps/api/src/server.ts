@@ -110,6 +110,17 @@ app.post('/api/select-cards', async (req, res) => {
       [walletResult.rows[0].id, -totalCost, 'GAME_FEE', `Purchased ${cardIds.length} cards`]
     );
 
+    // 🔒 SECURITY: Check if any of the requested cards are already sold
+    for (const cardId of cardIds) {
+      const existingCard = await client.query(
+        'SELECT 1 FROM game_cards WHERE game_id = 1 AND bingo_card_id = $1',
+        [cardId]
+      );
+      if (existingCard.rows.length > 0) {
+        throw new Error(`Card #${cardId} is already sold or selected`);
+      }
+    }
+
     for (const cardId of cardIds) {
       await client.query(
         'INSERT INTO game_cards (game_id, user_id, bingo_card_id, fee_paid) VALUES (1, $1, $2, $3)',
@@ -127,7 +138,7 @@ app.post('/api/select-cards', async (req, res) => {
   } catch (error: any) {
     await client.query('ROLLBACK');
     console.error('❌ Card selection failed:', error.message);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(400).json({ error: error.message || 'Internal server error' });
   } finally {
     client.release();
   }
