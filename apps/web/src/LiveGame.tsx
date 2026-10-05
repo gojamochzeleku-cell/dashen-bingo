@@ -160,9 +160,9 @@ function LiveGame() {
         <div className="live-right-column" ref={cardsContainerRef}>
           {!hasCards ? (
             <div className="no-cards-message">
-              <div className="no-cards-icon"></div><h3>You didn't buy cards</h3>
-              <p>Wait for this game to end and try your luck in the next round!</p>
-              <div className="no-cards-hint">💡 Tip: Select cards in the lobby before the timer ends</div>
+              <div className="no-cards-icon"></div><h3>ምንም ካርቴላ አልገዙም።</h3>
+              <p>ይህ ጨዋታ እስኪጠናቀቅ ይጠብቁ፤ በሚጥለው ዙር እድልዎን ይሞክሩ!</p>
+              <div className="no-cards-hint">💡 ጠቃ ምክር: ታይመሩ ከማለቁ በፊት በሎቢ ውስጥ ካርቴላዎችን ይምረጡ።</div>
             </div>
           ) : (
             myCards.map((card) => {
