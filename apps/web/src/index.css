@@ -1332,3 +1332,28 @@ html, body, #root { height: 100%; }
   color: #d1fae5 !important;
   box-shadow: 0 0 18px rgba(52,211,153,0.4), 0 10px 30px rgba(0,0,0,0.55) !important;
 }
+
+/* ===== HINT = SAME STYLE AS ቀሪ ሳብ LABEL (gold + bold + glow) ===== */
+.fixed-header > *:last-child {
+  color: #fbbf24 !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 10px rgba(251,191,36,0.45) !important;
+  background: none !important;
+  letter-spacing: 0.4px !important;
+}
+
+/* ===== TINY TEXT-ONLY NOTIFICATION PILL ===== */
+.app-layout [class*="message"][class*="error"],
+.app-layout [class*="message"][class*="success"],
+.app-layout [class*="toast"][class*="error"],
+.app-layout [class*="toast"][class*="success"] {
+  min-width: 0 !important;
+  width: auto !important;
+  max-width: 80vw !important;
+  padding: 5px 12px !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  border-radius: 999px !important;
+  top: 10px !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45) !important;
+}
