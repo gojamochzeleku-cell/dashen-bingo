@@ -182,9 +182,9 @@ function Lobby() {
     <div className="app-layout">
       <div className="fixed-header">
         <div className="compact-stats-row">
-          <div className="mini-stat"><span className="label">Wallet</span><span className="val green">{walletBalance} ETB</span></div>
-          <div className="mini-stat"><span className="label">Sold</span><span className="val blue">{totalCardsSold}</span></div>
-          <div className="mini-stat"><span className="label">Prize</span><span className="val purple">{Math.floor(prizePool)} ETB</span></div>
+          <div className="mini-stat"><span className="label">ቀሪ ሂሳብ</span><span className="val green">{walletBalance} ETB</span></div>
+          <div className="mini-stat"><span className="label">ካርቴላ</span><span className="val blue">{totalCardsSold}</span></div>
+          <div className="mini-stat"><span className="label">ሽልማት</span><span className="val purple">{Math.floor(prizePool)} ETB</span></div>
         </div>
 
         <div className="lobby-header-row">
@@ -215,7 +215,7 @@ function Lobby() {
 
         <div className="selected-numbers-row">
           {selectedCards.length === 0 ? (
-            <span className="empty-text">No cards selected</span>
+            <span className="empty-text">እስከ አራት ካርቴላ መምረጥ ይችላሉ:: ጨዋታው በሁለት ዝግ ነው።</span>
           ) : (
             selectedCards.map(card => (
               <div key={card.cardId} className="selected-chip">
