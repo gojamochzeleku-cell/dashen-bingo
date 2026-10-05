@@ -138,6 +138,12 @@ app.post('/api/select-cards', async (req, res) => {
 // ==========================================
 app.post('/api/refund-card', async (req, res) => {
   const { telegramId, cardId } = req.body;
+  
+  // 🔒 SECURITY: Do not allow refunds if the game is no longer in WAITING state
+  if (gameEngine.state !== 'WAITING') {
+    return res.status(403).json({ error: 'Cannot refund cards after the game has started' });
+  }
+
   const client = await pool.connect();
   try {
     await client.query('BEGIN');

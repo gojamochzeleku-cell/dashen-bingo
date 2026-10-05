@@ -34,6 +34,7 @@ function Lobby() {
   
   // 🔬 BRUTE FORCE FRONTEND PROTECTION: Keep refunded cards available for 5s
   const [recentlyRefunded, setRecentlyRefunded] = useState<Set<number>>(new Set())
+  const [refundingCards, setRefundingCards] = useState<Set<number>>(new Set())
 
   const allCards = Array.from({ length: 400 }, (_, i) => i + 1)
 
