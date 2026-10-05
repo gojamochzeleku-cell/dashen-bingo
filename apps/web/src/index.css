@@ -1201,3 +1201,39 @@ body {
     transform: scale(1.1) !important; 
   }
 }
+
+/* ===== LOBBY SPACE FIX v2: un-hide numbers 1-8 ===== */
+html, body, #root { height: 100%; }
+
+.app-layout {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  overflow: hidden !important;
+}
+
+.fixed-header {
+  position: relative !important;
+  flex: 0 0 auto !important;
+  padding-bottom: 0 !important;
+}
+
+/* Collapse the "No cards selected" zone to a thin line */
+.fixed-header > *:last-child {
+  margin: 2px 0 !important;
+  padding: 0 !important;
+  min-height: 0 !important;
+  font-size: 0.75rem !important;
+}
+
+/* Board wrapper: takes ALL remaining space, scrolls from row 1 */
+.fixed-header + div {
+  flex: 1 1 auto !important;
+  overflow-y: auto !important;
+  position: relative !important;
+  top: 0 !important;
+  margin-top: 0 !important;
+  padding-top: 4px !important;
+  height: auto !important;
+}
