@@ -264,3 +264,20 @@ bot.onText(/^🎮 Play Bingo/, (msg) => {
 });
 
 console.log('✅ [BOT] Bulletproof Withdrawal Wizard Active!');
+
+// ==========================================
+// GLOBAL ERROR HANDLERS (Prevent silent crashes)
+// ==========================================
+process.on('unhandledRejection', (err) => {
+  console.error('❌ [BOT] Unhandled Rejection:', err.message || err);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('❌ [BOT] Uncaught Exception:', err.message || err);
+});
+
+// ==========================================
+// START THE BOT (Node Telegram Bot API)
+// ==========================================
+bot.startPolling();
+console.log('🚀 [BOT] Node Telegram Bot is now polling for updates...');
