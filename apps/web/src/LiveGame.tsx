@@ -124,11 +124,11 @@ function LiveGame() {
   return (
     <div className="live-game-layout">
       <div className="live-stats-bar">
-        <div className="live-stat-box"><span className="live-stat-label">BALANCE</span><span className="live-stat-value green">{balance}</span></div>
-        <div className="live-stat-box"><span className="live-stat-label">RESERVED</span><span className="live-stat-value blue">{reserved}</span></div>
-        <div className="live-stat-box"><span className="live-stat-label">PRIZE</span><span className="live-stat-value yellow">{prize}</span></div>
-        <div className="live-stat-box"><span className="live-stat-label">CARDS</span><span className="live-stat-value purple">{totalCardsSold}</span></div>
-        <div className="live-stat-box"><span className="live-stat-label">CALLED</span><span className="live-stat-value orange">{calledNumbers.length}/75</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">ቀሪ ሂሳብ</span><span className="live-stat-value green">{balance}</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">ምድብ</span><span className="live-stat-value blue">{reserved}</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">ሽልማት</span><span className="live-stat-value yellow">{prize}</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">ካርቴላ</span><span className="live-stat-value purple">{totalCardsSold}</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">የተጠሩ</span><span className="live-stat-value orange">{calledNumbers.length}/75</span></div>
       </div>
 
       <div className="live-two-columns">
@@ -151,7 +151,7 @@ function LiveGame() {
             {Array.from({length: 15}, (_, rowIdx) => (
               boardColumns.map((col, colIdx) => {
                 const num = col.numbers[rowIdx]; const called = isNumberCalled(num)
-                return <div key={`${rowIdx}-${colIdx}`} className={`board-number ${called ? 'called' : ''}`}>{num}</div>
+                return <div key={`${rowIdx}-${colIdx}`} className={`board-number ${called ? 'የተጠሩ' : ''}`}>{num}</div>
               })
             ))}
           </div>
@@ -162,7 +162,7 @@ function LiveGame() {
             <div className="no-cards-message">
               <div className="no-cards-icon"></div><h3>ምንም ካርቴላ አልገዙም።</h3>
               <p>ይህ ጨዋታ እስኪጠናቀቅ ይጠብቁ፤ በሚጥለው ዙር እድልዎን ይሞክሩ!</p>
-              <div className="no-cards-hint">💡 ጠቃ ምክር: ታይመሩ ከማለቁ በፊት በሎቢ ውስጥ ካርቴላዎችን ይምረጡ።</div>
+              <div className="no-cards-hint">።</div>
             </div>
           ) : (
             myCards.map((card) => {
