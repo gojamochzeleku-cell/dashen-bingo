@@ -215,7 +215,7 @@ function Lobby() {
 
         <div className="selected-numbers-row">
           {selectedCards.length === 0 ? (
-            <span className="empty-text">እስከ አራት ካርቴላ መምረጥ ይችላሉ:: ጨዋታው በሁለት ዝግ ነው።</span>
+            <span className="empty-text"><span className="gold-hint">እስከ አራት ካርቴላ መምረጥ ይችላሉ:: ጨዋታው በሁለት ዝግ ነው።</span></span>
           ) : (
             selectedCards.map(card => (
               <div key={card.cardId} className="selected-chip">
@@ -228,7 +228,7 @@ function Lobby() {
             <button className="confirm-inline" onClick={confirmFeeIncrease} disabled={isProcessing}>Confirm</button>
           )}
         </div>
-        {message.text && <div className={`toast ${message.type}`}>{message.text}</div>}
+        {message.text && <div className={"float-notif " + (message.type || '')}>{message.text}</div>}
       </div>
 
       <div className="scrollable-grid-area">

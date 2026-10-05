@@ -1357,3 +1357,40 @@ html, body, #root { height: 100%; }
   top: 10px !important;
   box-shadow: 0 4px 14px rgba(0,0,0,0.45) !important;
 }
+
+/* ===== FIXED TINY PILL NOTIFICATION (cannot stretch) ===== */
+.float-notif {
+  position: fixed !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 80vw !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  pointer-events: none !important;
+  flex: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.45) !important;
+}
+.float-notif.error {
+  background: rgba(69,10,10,0.96) !important;
+  border: 1px solid #ef4444 !important;
+  color: #fee2e2 !important;
+}
+.float-notif.success {
+  background: rgba(6,78,59,0.96) !important;
+  border: 1px solid #34d399 !important;
+  color: #d1fae5 !important;
+}
+
+/* ===== HIGH-CONTRAST GOLD HINT ===== */
+.gold-hint {
+  color: #ffd75e !important;
+  font-weight: 800 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.9), 0 0 12px rgba(255,215,94,0.55) !important;
+}
