@@ -1450,3 +1450,23 @@ html, body, #root { height: 100%; }
     border-color: #ff4d4d;
   }
 }
+
+/* ===== BINGO BOARD & CARD NUMBER ENHANCEMENTS ===== */
+
+/* 1. Live 75-Number Board */
+.board-number {
+  font-weight: 700 !important; /* Bold */
+  font-size: 1.15rem !important; /* Reasonable size increase */
+}
+
+/* 2. User's Bingo Cards */
+.card-cell {
+  font-weight: 700 !important; /* Bold */
+  font-size: 1.25rem !important; /* Slightly larger for the cards */
+}
+
+/* 3. Make the "FREE" space match the new bold style */
+.card-cell.free {
+  font-weight: 700 !important;
+  font-size: 1rem !important; /* Keep FREE text slightly smaller so it fits nicely */
+}
