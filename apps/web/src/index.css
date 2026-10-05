@@ -1279,3 +1279,56 @@ html, body, #root { height: 100%; }
     -webkit-text-fill-color: transparent;
   }
 }
+
+/* ===== VISIBLE GOLDEN AMHARIC HINT ===== */
+.fixed-header > *:last-child {
+  color: #fde68a !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 14px rgba(251,191,36,0.4) !important;
+  background: linear-gradient(90deg, rgba(251,191,36,0.06), rgba(251,191,36,0.16), rgba(251,191,36,0.06)) !important;
+  border-radius: 10px !important;
+  padding: 4px 10px !important;
+  margin: 4px 6px !important;
+}
+
+/* ===== FLOATING PREMIUM NOTIFICATION (impossible to hide) ===== */
+@keyframes notifPop {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(0.95); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+.app-layout [class*="message"][class*="error"],
+.app-layout [class*="message"][class*="success"],
+.app-layout [class*="toast"][class*="error"],
+.app-layout [class*="toast"][class*="success"] {
+  position: fixed !important;
+  top: 14px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  min-width: 230px !important;
+  max-width: 92vw !important;
+  padding: 11px 18px !important;
+  border-radius: 14px !important;
+  text-align: center !important;
+  font-size: 0.88rem !important;
+  font-weight: 800 !important;
+  backdrop-filter: blur(8px) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.55) !important;
+  animation: notifPop 0.25s ease !important;
+  pointer-events: none !important;
+}
+.app-layout [class*="message"][class*="error"],
+.app-layout [class*="toast"][class*="error"] {
+  background: rgba(69,10,10,0.96) !important;
+  border: 1px solid #ef4444 !important;
+  color: #fee2e2 !important;
+  box-shadow: 0 0 18px rgba(239,68,68,0.45), 0 10px 30px rgba(0,0,0,0.55) !important;
+}
+.app-layout [class*="message"][class*="success"],
+.app-layout [class*="toast"][class*="success"] {
+  background: rgba(6,78,59,0.96) !important;
+  border: 1px solid #34d399 !important;
+  color: #d1fae5 !important;
+  box-shadow: 0 0 18px rgba(52,211,153,0.4), 0 10px 30px rgba(0,0,0,0.55) !important;
+}

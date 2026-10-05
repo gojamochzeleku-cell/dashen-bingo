@@ -112,7 +112,7 @@ function Lobby() {
     }
     
     if (selectedCards.length >= MAX_CARDS) {
-      setMessage({ text: `Max ${MAX_CARDS} cards!`, type: 'error' })
+      setMessage({ text: `ከፍተኛ አራት መርጠዋል።`, type: 'error' })
       setTimeout(() => setMessage({ text: '', type: '' }), 1500)
       return
     }
