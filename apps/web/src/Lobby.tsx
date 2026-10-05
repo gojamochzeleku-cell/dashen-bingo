@@ -214,6 +214,7 @@ function Lobby() {
       </div>
 
         <div className="selected-numbers-row">
+        {message.text && <span className={"inline-notif " + (message.type || '')}>{message.text}</span>}
           {selectedCards.length === 0 ? (
             <span className="empty-text"><span className="gold-hint">እስከ አራት ካርቴላ መምረጥ ይችላሉ:: ጨዋታው በሁለት ዝግ ነው።</span></span>
           ) : (
@@ -228,7 +229,7 @@ function Lobby() {
             <button className="confirm-inline" onClick={confirmFeeIncrease} disabled={isProcessing}>Confirm</button>
           )}
         </div>
-        {message.text && <div className={"float-notif " + (message.type || '')}>{message.text}</div>}
+        {message.text && }
       </div>
 
       <div className="scrollable-grid-area">
