@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/api/admin/:path*",
-      "destination": "https://dashen-bingo.onrender.com/api/admin/:path*"
+      "destination": "https://dashen-api3.onrender.com/api/admin/:path*"
     },
     {
       "source": "/(.*)",
