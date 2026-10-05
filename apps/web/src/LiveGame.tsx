@@ -151,7 +151,7 @@ function LiveGame() {
             {Array.from({length: 15}, (_, rowIdx) => (
               boardColumns.map((col, colIdx) => {
                 const num = col.numbers[rowIdx]; const called = isNumberCalled(num)
-                return <div key={`${rowIdx}-${colIdx}`} className={`board-number ${called ? 'የተጠሩ' : ''}`}>{num}</div>
+                return <div key={`${rowIdx}-${colIdx}`} className={`board-number ${called ? 'called' : ''}`}>{num}</div>
               })
             ))}
           </div>
