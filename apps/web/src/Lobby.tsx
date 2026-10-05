@@ -229,7 +229,7 @@ function Lobby() {
             <button className="confirm-inline" onClick={confirmFeeIncrease} disabled={isProcessing}>Confirm</button>
           )}
         </div>
-        {message.text && }
+        
       </div>
 
       <div className="scrollable-grid-area">
