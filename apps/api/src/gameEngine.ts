@@ -88,6 +88,7 @@ export class GameEngine {
   private totalCardsSold = 0;
   private prizePool = 0;
   private bots: BotPlayer[] = [];
+  public botTargetCount: number = 30; // Default reduced to 30 bots (adjustable via admin)
   public soldCardIds: Set<number> = new Set();
   public protectedCards: Set<number> = new Set();
 
@@ -203,7 +204,7 @@ export class GameEngine {
     console.log(`🎮 [GAME ENGINE] Lobby started. Target: ${TARGET_TOTAL_CARDS} cards.`);
     this.emitStats();
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < this.botTargetCount; i++) {
       const name = BOT_NAMES[i % BOT_NAMES.length];
       const bot: BotPlayer = { id: `bot_${i}`, name, cardsBought: [], timers: [] };
       const cardsToBuy = Math.random() < 0.8 ? 1 : 2; 

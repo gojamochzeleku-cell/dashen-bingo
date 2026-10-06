@@ -272,4 +272,18 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('❌ Player disconnected:', socket.id));
 });
 
+
+// ==========================================
+// ADMIN: SET BOT COUNT
+// ==========================================
+app.post('/api/admin/set-bot-count', async (req, res) => {
+  const { count } = req.body;
+  if (typeof count !== 'number' || count < 0 || count > 200) {
+    return res.status(400).json({ error: 'Invalid bot count. Must be between 0 and 200.' });
+  }
+  gameEngine.botTargetCount = count;
+  console.log(` [ADMIN] Bot target count updated to ${count}`);
+  res.json({ success: true, message: `Bot count updated to ${count}`, currentCount: gameEngine.botTargetCount });
+});
+
 server.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
