@@ -1545,3 +1545,53 @@ html, body, #root { height: 100%; }
   box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.4) !important;
   z-index: 3; /* Ensure it sits on top of the black borders */
 }
+
+/* ===== WINNER MODAL ULTIMATE CLARITY & ANIMATION ===== */
+
+/* 1. Thicker Black Grid Boundaries for the Pattern */
+.pattern-complete-premium {
+  border: 4px solid #000000 !important; /* Very thick black boundary */
+  box-shadow: inset 0 0 0 1px #000000 !important;
+  z-index: 2;
+  position: relative;
+}
+
+/* 2. Last Winner Number: Switching Colors (Red Light <-> Default) */
+@keyframes winnerNumberBlink {
+  0%, 100% { 
+    background: rgba(255, 51, 51, 0.9) !important; /* Bright Red Light */
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 51, 51, 1), inset 0 0 15px rgba(255, 255, 255, 0.3) !important;
+    border-color: #ff0000 !important;
+    transform: scale(1.05);
+  }
+  50% { 
+    background: rgba(255, 255, 255, 0.1) !important; /* Default Background */
+    color: #ffffff !important;
+    box-shadow: none !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1);
+  }
+}
+
+.golden-halo-pulse {
+  animation: winnerNumberBlink 1.2s infinite ease-in-out !important;
+  border: 3px solid #ff3333 !important;
+  z-index: 3;
+  font-weight: 900 !important;
+}
+
+/* 3. Username in a High-Contrast Box (Black Background, Neon Green Text) */
+.winner-name, 
+.winner-name-compact {
+  background: #000000 !important; /* Solid Black Box */
+  color: #00ff88 !important; /* Bright Neon Green Text */
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  border: 2px solid #00ff88 !important;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4) !important;
+  text-shadow: none !important; /* Removed blur for maximum sharpness */
+  display: inline-block !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+}
