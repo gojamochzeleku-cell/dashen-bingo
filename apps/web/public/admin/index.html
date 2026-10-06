@@ -126,6 +126,16 @@
         <div class="card green"><div class="label">Verified</div><div class="value" id="s-verified">--</div></div>
         <div class="card gold"><div class="label">All Balances</div><div class="value" id="s-bal">--</div></div>
         <div class="card blue"><div class="label">Lobby Timer</div><div class="value" id="s-timer">--</div></div>
+        <div class="card" style="grid-column: span 2; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+          <div>
+            <div class="label">🤖 Bot Count (Next Lobby)</div>
+            <div class="value" id="s-bots" style="font-size:16px; color:#60a5fa;">--</div>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <input type="number" id="botCountInput" min="0" max="200" style="width:70px; padding:8px; border-radius:8px; border:1px solid rgba(255,255,255,.1); background:rgba(0,0,0,.35); color:#fff; font-size:14px; text-align:center; outline:none;">
+            <button class="mini gold" onclick="updateBotCount()">💾 Update</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -244,6 +254,8 @@ async function refresh(){
     document.getElementById('s-verified').textContent = db.verified ?? '--';
     document.getElementById('s-bal').textContent = money(db.totalBalances);
     document.getElementById('s-timer').textContent = (g.state==='WAITING' ? (g.timeRemaining ?? '--') + 's' : 'LIVE');
+    document.getElementById('s-bots').textContent = d.botCount ?? '--';
+    document.getElementById('botCountInput').value = d.botCount ?? 30;
     const st = document.getElementById('gameState');
     st.textContent = g.state || '--';
     st.classList.toggle('live', g.state === 'CALLING');
@@ -463,6 +475,17 @@ async function savePromo(id) {
   
   const d = await api('promos/update', { method:'POST', body: JSON.stringify({ id, is_active: isActive, value: val, max_amount: max }) });
   toast(d.success ? '✅ Values Saved!' : '❌ ' + d.error);
+}
+
+
+async function updateBotCount() {
+  const count = parseInt(document.getElementById('botCountInput').value);
+  if (isNaN(count) || count < 0 || count > 200) return toast('❌ Count must be 0-200');
+  try {
+    const d = await api('set-bot-count', { method:'POST', body: JSON.stringify({ count }) });
+    toast(d.success ? '✅ Bot count updated to ' + d.currentCount : '❌ ' + d.error);
+    refresh();
+  } catch(e) { toast('❌ ' + (e.message || 'Failed')); }
 }
 
 let poller = null;

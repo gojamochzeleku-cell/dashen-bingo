@@ -25,7 +25,7 @@ export function createAdminRouter(gameEngine: GameEngine, pool: any): Router {
         const b = await pool.query('SELECT COALESCE(SUM(balance),0)::float AS t FROM wallets');
         db = { users: u.rows[0].c, verified: v.rows[0].c, totalBalances: b.rows[0].t };
       } catch (e) {}
-      res.json({ game, db, now: Date.now() });
+      res.json({ game, db, botCount: gameEngine.botTargetCount ?? 30, now: Date.now() });
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
@@ -206,6 +206,18 @@ export function createAdminRouter(gameEngine: GameEngine, pool: any): Router {
         "SELECT type, value, max_amount FROM promotions WHERE is_active = TRUE AND (start_time IS NULL OR start_time <= NOW()) AND (end_time IS NULL OR end_time >= NOW())"
       );
       res.json({ promos: q.rows });
+    } catch (e: any) { res.status(500).json({ error: e.message }); }
+  });
+
+  
+  router.post('/set-bot-count', async (req: Request, res: Response) => {
+    try {
+      const { count } = req.body;
+      if (typeof count !== 'number' || count < 0 || count > 200) {
+        return res.status(400).json({ error: 'Invalid bot count. Must be between 0 and 200.' });
+      }
+      gameEngine.botTargetCount = count;
+      res.json({ success: true, currentCount: gameEngine.botTargetCount });
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
