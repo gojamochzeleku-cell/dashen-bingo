@@ -8,6 +8,29 @@ const TARGET_TOTAL_CARDS = 150;
 
 
 
+
+// 🔬 HELPER: Generate deterministic card grid from ID (for human players)
+function generateCardGridFromId(cardId: number) {
+  const ranges = [[1,15], [16,30], [31,45], [46,60], [61,75]];
+  const grid: (number | null)[][] = Array(5).fill(null).map(() => Array(5).fill(null));
+  let seed = cardId * 9301 + 49297;
+  const random = () => {
+    seed = (seed * 9301 + 49297) % 233280;
+    return seed / 233280;
+  };
+  for (let col = 0; col < 5; col++) {
+    const [min, max] = ranges[col];
+    const nums: number[] = [];
+    while (nums.length < 5) {
+      const n = Math.floor(random() * (max - min + 1)) + min;
+      if (!nums.includes(n)) nums.push(n);
+    }
+    for (let row = 0; row < 5; row++) grid[row][col] = nums[row];
+  }
+  grid[2][2] = null; // FREE space
+  return grid;
+}
+
 function generateBingoCard() {
   const ranges = [[1,15], [16,30], [31,45], [46,60], [61,75]];
   const card: (number | null)[][] = Array(5).fill(null).map(() => Array(5).fill(null));
