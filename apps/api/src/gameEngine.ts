@@ -338,7 +338,7 @@ export class GameEngine {
       } catch (err) {
         console.error('❌ [GAME ENGINE] Error checking human cards:', err);
       }
-    }, NUMBER_CALL_INTERVAL_SEC * 1000);    }, NUMBER_CALL_INTERVAL_SEC * 1000);
+        }, NUMBER_CALL_INTERVAL_SEC * 1000);
   }
 
   
