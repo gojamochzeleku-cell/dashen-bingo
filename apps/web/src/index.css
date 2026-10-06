@@ -1653,3 +1653,53 @@ html, body, #root { height: 100%; }
   position: relative !important;
   border: 2px solid #000000 !important;
 }
+
+/* ===== LOBBY: LARGER SELECTED BOXES & CANCEL BUTTON ===== */
+
+/* 1. Extra space between the selected number boxes */
+.selected-cards, 
+.selected-numbers, 
+.selected-cards-row {
+  gap: 16px !important; /* Increased spacing between boxes */
+  margin-bottom: 15px !important;
+  padding: 5px !important;
+}
+
+/* 2. Make the selected number boxes larger */
+.selected-card, 
+.selected-number-box, 
+.card-badge {
+  width: 65px !important;  /* Increased size */
+  height: 65px !important; /* Increased size */
+  min-width: 65px !important;
+  font-size: 1.4rem !important; /* Larger text inside */
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 3. Make the 'X' Cancel button larger and easier to tap */
+.remove-btn, 
+.cancel-btn, 
+.x-icon, 
+.remove-icon, 
+.close-icon {
+  font-size: 1.5rem !important; /* Much larger X */
+  width: 26px !important;
+  height: 26px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: #ff4d4d !important; /* Bright red background */
+  color: white !important; /* White X for contrast */
+  font-weight: 900 !important;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4) !important;
+  position: absolute !important;
+  top: -8px !important;
+  right: -8px !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
+}
