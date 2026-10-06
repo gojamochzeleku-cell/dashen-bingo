@@ -279,7 +279,13 @@ process.on('uncaughtException', (err) => {
 // ==========================================
 // START THE BOT (Node Telegram Bot API)
 // ==========================================
-bot.startPolling();
+bot.deleteWebhook().then(() => {
+  bot.startPolling();
+  console.log("🚀 [BOT] Webhook cleared. Bot is now safely polling for updates...");
+}).catch(err => {
+  console.error("⚠️ [BOT] Could not clear webhook, trying to poll anyway:", err);
+  bot.startPolling();
+});
 console.log('🚀 [BOT] Node Telegram Bot is now polling for updates...');
 
 // ==========================================
