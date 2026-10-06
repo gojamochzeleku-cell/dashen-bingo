@@ -294,10 +294,42 @@ export class GameEngine {
     }, NUMBER_CALL_INTERVAL_SEC * 1000);
   }
 
-  private endGame(hasWinner: boolean, winnerData: any) {
+  
+  private async settleWinners(winnerData: any) {
+    if (!winnerData || !winnerData.cardId) return;
+    try {
+      const cardResult = await this.pool.query(
+        'SELECT user_id FROM game_cards WHERE bingo_card_id = $1 AND game_id = 1',
+        [winnerData.cardId]
+      );
+      if (cardResult.rows.length === 0) {
+        console.log(`⚠️ [GAME ENGINE] Card #${winnerData.cardId} not found (likely a bot). No payout.`);
+        return;
+      }
+      const userId = cardResult.rows[0].user_id;
+      const walletResult = await this.pool.query('SELECT id FROM wallets WHERE user_id = $1', [userId]);
+      if (walletResult.rows.length === 0) return;
+      
+      const prize = this.prizePool;
+      await this.pool.query('UPDATE wallets SET balance = balance + $1 WHERE id = $2', [prize, walletResult.rows[0].id]);
+      await this.pool.query('INSERT INTO wallet_ledger (wallet_id, amount, type, description) VALUES ($1, $2, $3, $4)',
+        [walletResult.rows[0].id, prize, 'PRIZE_WIN', `Won Bingo with card #${winnerData.cardId}`]
+      );
+      console.log(`💰 [GAME ENGINE] SUCCESS: Paid ${prize} ETB to user ${userId}`);
+      winnerData.prizeAmount = prize;
+    } catch (error) {
+      console.error('❌ [GAME ENGINE] Failed to settle winner:', error);
+    }
+  }
+
+  private async endGame(hasWinner: boolean, winnerData: any) {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.stopBotTimers();
     
+    // 🔥 SETTLE THE PRIZE BEFORE ENDING THE GAME
+    if (hasWinner && winnerData) {
+      await this.settleWinners(winnerData);
+    }
     this.state = 'COMPLETED';
     this.io.emit('game:completed', {
       hasWinner,
