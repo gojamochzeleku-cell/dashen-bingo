@@ -240,7 +240,7 @@ export class GameEngine {
       this.bots.push(bot);
     }
 
-    this.timerInterval = setInterval(() => {
+    this.timerInterval = setInterval(async () => {
       this.timeRemaining--;
       this.emitStats();
       if (this.timeRemaining <= 0) this.startCallingNumbers();
@@ -314,7 +314,31 @@ export class GameEngine {
           }
         }
       }
-    }, NUMBER_CALL_INTERVAL_SEC * 1000);
+
+      // 🔬 CHECK FOR 2 PATTERNS (HUMAN PLAYERS)
+      try {
+        const humanCardsResult = await this.pool.query(
+          'SELECT bingo_card_id, user_id FROM game_cards WHERE game_id = 1'
+        );
+        for (const row of humanCardsResult.rows) {
+          const grid = generateCardGridFromId(row.bingo_card_id);
+          const completedPatterns = countPatterns(grid, markedNumbers);
+          if (completedPatterns >= 2) {
+            console.log(`🏆 [GAME ENGINE] BINGO! Human user ${row.user_id} won with card #${row.bingo_card_id} (Patterns: ${completedPatterns})!`);
+            this.endGame(true, { 
+              botName: 'Player', 
+              cardId: row.bingo_card_id, 
+              grid: grid, 
+              winningNumber: newNumber,
+              userId: row.user_id 
+            });
+            return;
+          }
+        }
+      } catch (err) {
+        console.error('❌ [GAME ENGINE] Error checking human cards:', err);
+      }
+    }, NUMBER_CALL_INTERVAL_SEC * 1000);    }, NUMBER_CALL_INTERVAL_SEC * 1000);
   }
 
   
