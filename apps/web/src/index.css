@@ -1518,3 +1518,30 @@ html, body, #root { height: 100%; }
     0 0 40px #00ff00 !important; /* Intense multi-layer glow effect */
   letter-spacing: 1px !important;
 }
+
+/* ===== WINNER MODAL READABILITY & PATTERN BORDERS ===== */
+
+/* 1. Fix Username: Less blown out, crisp and readable neon green */
+.winner-name, 
+.winner-name-compact {
+  color: #00ff88 !important; /* Vibrant but readable green */
+  text-shadow: 
+    0 0 5px rgba(0, 255, 136, 0.6), 
+    0 0 15px rgba(0, 255, 136, 0.3) !important; /* Reduced glow layers */
+  letter-spacing: 0.5px !important;
+}
+
+/* 2. Thick Black Boundary for Pattern Cells */
+.pattern-complete-premium {
+  border: 3px solid #000000 !important; /* Bold thick black line */
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.8) !important; /* Extra definition */
+  z-index: 2;
+  position: relative;
+}
+
+/* 3. Exception: The Last Winning Number (No black border, keep it Gold) */
+.golden-halo-pulse {
+  border: 3px solid #ffd700 !important; /* Gold border to make it pop against the black */
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.8), inset 0 0 10px rgba(255, 215, 0, 0.4) !important;
+  z-index: 3; /* Ensure it sits on top of the black borders */
+}
