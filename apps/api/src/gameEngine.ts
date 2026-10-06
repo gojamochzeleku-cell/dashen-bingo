@@ -324,15 +324,33 @@ export class GameEngine {
           const grid = generateCardGridFromId(row.bingo_card_id);
           const completedPatterns = countPatterns(grid, markedNumbers);
           if (completedPatterns >= 2) {
-            console.log(`🏆 [GAME ENGINE] BINGO! Human user ${row.user_id} won with card #${row.bingo_card_id} (Patterns: ${completedPatterns})!`);
-            this.endGame(true, { 
-              botName: 'Player', 
-              cardId: row.bingo_card_id, 
-              grid: grid, 
-              winningNumber: newNumber,
-              userId: row.user_id 
-            });
-            return;
+            console.log(` [GAME ENGINE] BINGO! Human user ${row.user_id} won with card #${row.bingo_card_id} (Patterns: ${completedPatterns})!`);
+            // Get the actual username
+            try {
+              const userResult = await this.pool.query(
+                'SELECT username, first_name FROM users WHERE id = $1',
+                [row.user_id]
+              );
+              const userName = userResult.rows[0]?.username || userResult.rows[0]?.first_name || 'Player';
+              this.endGame(true, { 
+                botName: userName, 
+                cardId: row.bingo_card_id, 
+                grid: grid, 
+                winningNumber: newNumber,
+                userId: row.user_id 
+              });
+              return;
+            } catch (err) {
+              console.error('Error fetching username:', err);
+              this.endGame(true, { 
+                botName: 'Player', 
+                cardId: row.bingo_card_id, 
+                grid: grid, 
+                winningNumber: newNumber,
+                userId: row.user_id 
+              });
+              return;
+            }
           }
         }
       } catch (err) {
