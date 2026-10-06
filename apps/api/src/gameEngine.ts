@@ -283,7 +283,7 @@ export class GameEngine {
     let numbersCalledCount = 0;
     const markedNumbers = new Set<number>();
 
-    this.timerInterval = setInterval(() => {
+    this.timerInterval = setInterval(async () => {
       if (numbersCalledCount >= MAX_NUMBERS_TO_CALL) { this.endGame(false, null); return; }
 
       let newNumber: number;
