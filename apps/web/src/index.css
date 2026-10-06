@@ -1703,3 +1703,102 @@ html, body, #root { height: 100%; }
   z-index: 10 !important;
   cursor: pointer !important;
 }
+
+/* ===== CACHE BUST: v2 - EXACT CLASS NAME FIX ===== */
+
+/* 1. LOBBY: Larger selected boxes and bigger X button */
+.selected-chip {
+  width: 70px !important;
+  height: 70px !important;
+  min-width: 70px !important;
+  font-size: 1.5rem !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 8px !important; /* Extra space between boxes */
+  position: relative !important;
+}
+
+.chip-close {
+  font-size: 1.8rem !important;
+  width: 30px !important;
+  height: 30px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  background: #ff4d4d !important;
+  color: white !important;
+  font-weight: 900 !important;
+  position: absolute !important;
+  top: -10px !important;
+  right: -10px !important;
+  z-index: 10 !important;
+  cursor: pointer !important;
+  border: 2px solid #fff !important;
+  line-height: 1 !important;
+}
+
+/* 2. WINNER MODAL: High contrast username box */
+.winner-name {
+  background: #1a1a1a !important;
+  color: #FFF8DC !important; /* Goldish-white */
+  border: 2px solid #FFD700 !important;
+  padding: 12px 24px !important;
+  border-radius: 10px !important;
+  display: inline-block !important;
+  width: auto !important;
+  max-width: 90% !important;
+  font-size: 1.6rem !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2) !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 15px !important;
+}
+
+/* 3. WINNER MODAL: Bold black boundary for red pattern boxes */
+.pattern-complete-premium {
+  background: rgba(255, 51, 51, 0.9) !important;
+  border: 3px solid #000000 !important;
+  box-shadow: 0 0 0 1px #000000 !important; /* Extra edge to prevent overlap */
+  z-index: 2 !important;
+  position: relative !important;
+  color: #ffffff !important;
+  font-weight: 800 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* 4. WINNER MODAL: Smooth alternating blink for last number */
+@keyframes blinkRedBlack {
+  0% {
+    background: #ff0000 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 0, 0, 1), inset 0 0 15px rgba(255, 255, 255, 0.4) !important;
+    border-color: #000000 !important;
+    transform: scale(1.05);
+  }
+  100% {
+    background: #111111 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+    border-color: #333333 !important;
+    transform: scale(1);
+  }
+}
+
+.golden-halo-pulse {
+  animation: blinkRedBlack 1s infinite alternate ease-in-out !important;
+  z-index: 10 !important;
+  position: relative !important;
+  border: 3px solid #000000 !important;
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
