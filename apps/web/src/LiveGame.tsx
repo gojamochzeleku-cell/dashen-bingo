@@ -202,8 +202,28 @@ function LiveGame() {
               <h2 className="winner-modal-title">🎉 Game Completed</h2>
               <p className="winner-modal-subtitle">New game will start soon. You will be redirected to the lobby.</p>
               
+              
+  {/* ☢️ NUCLEAR ANIMATION INJECTION ☢️ */}
+  <style>{`
+    @keyframes blinkRedBlack {
+      0% { background: #ff0000 !important; color: #ffffff !important; transform: scale(1.05); box-shadow: 0 0 20px rgba(255,0,0,0.8); }
+      100% { background: #111111 !important; color: #ffffff !important; transform: scale(1); box-shadow: none; }
+    }
+  `}</style>
+
               <div className="winner-announcement">
-                <span className="winner-name">{winner.botName || 'Player'}</span> 
+                <span style={{
+                    background: '#000000',
+                    color: '#FFD700',
+                    padding: '12px 24px',
+                    borderRadius: '10px',
+                    fontWeight: '900',
+                    fontSize: '1.5rem',
+                    border: '2px solid #FFD700',
+                    display: 'inline-block',
+                    marginBottom: '10px',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+                  }}>{winner.botName || 'Player'}</span> 
                 <span className="winner-card-badge">Card #{winner.cardId}</span> 
                 <span className="winner-action">has won the game!</span>
               </div>
@@ -226,6 +246,10 @@ function LiveGame() {
                         <div 
                           key={`${rIdx}-${cIdx}`} 
                           className={`winner-cell-premium ${isFree ? 'free-cell-premium' : ''} ${isRedLight ? 'pattern-complete-premium' : ''} ${isLastNumber ? 'golden-halo-pulse' : ''}`}
+                          style={{
+                            ...(isRedLight && !isLastNumber ? { border: '3px solid #000000', boxShadow: '0 0 0 1px #000000' } : {}),
+                            ...(isLastNumber ? { animation: 'blinkRedBlack 1s infinite alternate ease-in-out', border: '3px solid #000000' } : {})
+                          }}
                         >
                           {isFree ? '★' : cell}
                         </div>
