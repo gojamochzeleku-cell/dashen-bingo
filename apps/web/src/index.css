@@ -1497,3 +1497,24 @@ html, body, #root { height: 100%; }
     border-color: #ff4d4d;
   }
 }
+
+/* ===== WINNER MODAL FINAL POLISH ===== */
+
+/* 1. Thicker boundary lines for the winner's bingo card numbers */
+.winner-cell-premium {
+  border: 2px solid rgba(255, 255, 255, 0.5) !important; /* Thicker, visible white boundary */
+  border-radius: 6px !important;
+  background: rgba(255, 255, 255, 0.05) !important; /* Slight background to make lines pop */
+}
+
+/* 2. Bright Neon Green Light for Winner Username (Single & Multi-winner) */
+.winner-name, 
+.winner-name-compact {
+  color: #39ff14 !important; /* Classic bright neon green */
+  text-shadow: 
+    0 0 5px #39ff14, 
+    0 0 10px #39ff14, 
+    0 0 20px #00ff00, 
+    0 0 40px #00ff00 !important; /* Intense multi-layer glow effect */
+  letter-spacing: 1px !important;
+}
