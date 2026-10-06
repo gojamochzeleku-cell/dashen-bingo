@@ -2,14 +2,12 @@ import { API_BASE } from "./apiBase";
 import { useState, useEffect } from 'react'
 import Lobby from './Lobby'
 import LiveGame from './LiveGame'
-import Admin from './Admin'
 import { io } from 'socket.io-client'
 
 const socket = io(API_BASE, { reconnection: true, reconnectionDelay: 1000 })
 
 function App() {
   const [gameState, setGameState] = useState<string | null>(null)
-  const [showAdmin, setShowAdmin] = useState(false)
 
   useEffect(() => {
     const handleSync = (data: any) => {
@@ -33,40 +31,68 @@ function App() {
     }
   }, [])
 
-  if (showAdmin) {
-    return (
-      <div style={{ backgroundColor: '#0f172a', minHeight: '100vh' }}>
-        <button 
-          onClick={() => setShowAdmin(false)}
-          style={{
-            position: 'absolute', top: '20px', left: '20px',
-            background: 'transparent', border: '1px solid #fff', color: '#fff',
-            padding: '8px 16px', borderRadius: '6px', cursor: 'pointer'
-          }}
-        >
-          ← Back to Game
-        </button>
-        <Admin />
-      </div>
-    )
-  }
-
+  // ==========================================
+  // PREMIUM WELCOME SCREEN
+  // ==========================================
   if (gameState === null) {
     return (
-      <div style={{ 
-        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', 
-        height: '100vh', backgroundColor: '#0f172a', color: '#00ff88', fontSize: '1.5rem', fontWeight: 'bold' 
+      <div style={{
+        position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+        background: 'radial-gradient(circle at center, #1e293b 0%, #0f172a 100%)',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
+        overflow: 'hidden', fontFamily: 'system-ui, -apple-system, sans-serif'
       }}>
+        <style>{`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+          }
+          @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.4), inset 0 0 20px rgba(0, 255, 136, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 136, 0.8), inset 0 0 30px rgba(0, 255, 136, 0.4); }
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+        `}</style>
+
         <div style={{
-          width: '40px', height: '40px', border: '4px solid rgba(0, 255, 136, 0.3)',
-          borderTop: '4px solid #00ff88', borderRadius: '50%', animation: 'spin 1s linear infinite'
-        }}></div>
-        <p style={{ marginTop: '20px' }}>Connecting to server...</p>
-        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+          width: '80px', height: '80px', borderRadius: '50%',
+          background: 'linear-gradient(135deg, #00ff88 0%, #00b36b 100%)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          animation: 'float 3s ease-in-out infinite, pulseGlow 2s ease-in-out infinite',
+          marginBottom: '30px',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)'
+        }}>
+          <span style={{
+            fontSize: '2.5rem', fontWeight: '900', color: '#0f172a',
+            textShadow: '0 2px 4px rgba(255,255,255,0.3)'
+          }}>B</span>
+        </div>
+
+        <h1 style={{
+          color: '#ffffff', fontSize: '2rem', fontWeight: '800',
+          margin: '0 0 10px 0', letterSpacing: '1px',
+          textShadow: '0 4px 10px rgba(0,0,0,0.5)',
+          animation: 'fadeIn 0.8s ease-out'
+        }}>
+          DASHEN <span style={{ color: '#00ff88' }}>BINGO</span>
+        </h1>
+
+        <p style={{
+          color: '#94a3b8', fontSize: '1rem', fontWeight: '500',
+          margin: 0, animation: 'fadeIn 1.2s ease-out'
+        }}>
+          Connecting to server...
+        </p>
       </div>
     )
   }
 
+  // ==========================================
+  // MAIN APP ROUTING (Player Only)
+  // ==========================================
   return (
     <div className="app-container">
       {gameState === 'CALLING' || gameState === 'COMPLETED' ? (
@@ -74,19 +100,6 @@ function App() {
       ) : (
         <Lobby />
       )}
-      
-      {/* Hidden Admin Access: Tap the bottom right corner 3 times, or just add a small button */}
-      <button 
-        onClick={() => setShowAdmin(true)}
-        style={{
-          position: 'fixed', bottom: '10px', right: '10px',
-          background: 'rgba(255,255,255,0.1)', border: 'none', color: 'rgba(255,255,255,0.3)',
-          width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', fontSize: '0.7rem'
-        }}
-        title="Admin Panel"
-      >
-        ⚙️
-      </button>
     </div>
   )
 }
