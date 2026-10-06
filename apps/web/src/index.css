@@ -1802,3 +1802,22 @@ html, body, #root { height: 100%; }
   align-items: center !important;
   justify-content: center !important;
 }
+
+/* ===== REDUCE SELECTED CARD SIZE BY HALF ===== */
+.selected-chip {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  font-size: 1rem !important;
+  margin: 4px !important;
+  border-radius: 8px !important;
+}
+
+.chip-close {
+  font-size: 1.1rem !important;
+  width: 18px !important;
+  height: 18px !important;
+  top: -6px !important;
+  right: -6px !important;
+  border: 1px solid #fff !important;
+}
