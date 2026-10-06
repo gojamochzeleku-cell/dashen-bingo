@@ -281,3 +281,11 @@ process.on('uncaughtException', (err) => {
 // ==========================================
 bot.startPolling();
 console.log('🚀 [BOT] Node Telegram Bot is now polling for updates...');
+
+// ==========================================
+// DATABASE CONNECTION SAFETY NET
+// ==========================================
+process.on('unhandledRejection', (reason, promise) => {
+  console.error(' [BOT] Unhandled Rejection caught:', reason);
+  // Do NOT exit the process, just log it so the bot stays alive
+});
