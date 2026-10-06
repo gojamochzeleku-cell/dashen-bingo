@@ -1595,3 +1595,61 @@ html, body, #root { height: 100%; }
   font-weight: 900 !important;
   letter-spacing: 1px !important;
 }
+
+/* ===== WINNER MODAL: ULTIMATE CLARITY & ANIMATION FIX ===== */
+
+/* 1. Username: Goldish-White Text, Variable Size Box, High Contrast */
+.winner-name, 
+.winner-name-compact {
+  background: #1a1a1a !important; /* Dark charcoal box (softer than pure black) */
+  color: #FFF8DC !important; /* Goldish-white text (Cornsilk) */
+  border: 2px solid #FFD700 !important; /* Gold border */
+  padding: 12px 24px !important;
+  border-radius: 10px !important;
+  
+  /* Variable size based on text length */
+  display: inline-block !important;
+  width: auto !important;
+  max-width: 90% !important;
+  word-break: break-word !important;
+  
+  font-size: 1.6rem !important;
+  font-weight: 900 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important; /* Sharp shadow for readability */
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2) !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* 2. Red Pattern Boxes: Bold Black Boundary (No Overlapping) */
+.pattern-complete-premium {
+  background: rgba(255, 51, 51, 0.85) !important; /* Clear Red */
+  border: 3px solid #000000 !important; /* Bold Black Boundary */
+  box-shadow: 0 0 0 1px #000000 !important; /* Extra black edge to prevent overlap collapse */
+  z-index: 2 !important;
+  position: relative !important;
+}
+
+/* 3. Last Winner Number: Smooth Alternating Blink (Red <-> Black) */
+@keyframes blinkRedBlack {
+  0% {
+    background: #ff0000 !important; /* Bright Red Light */
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(255, 0, 0, 1), inset 0 0 15px rgba(255, 255, 255, 0.4) !important;
+    border-color: #000000 !important;
+    transform: scale(1.05);
+  }
+  100% {
+    background: #111111 !important; /* Dark Black Background */
+    color: #ffffff !important;
+    box-shadow: none !important;
+    border-color: #333333 !important;
+    transform: scale(1);
+  }
+}
+
+.golden-halo-pulse {
+  animation: blinkRedBlack 1s infinite alternate ease-in-out !important;
+  z-index: 10 !important;
+  position: relative !important;
+  border: 2px solid #000000 !important;
+}
