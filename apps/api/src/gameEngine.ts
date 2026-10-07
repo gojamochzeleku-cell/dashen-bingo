@@ -387,13 +387,13 @@ export class GameEngine {
     }
   }
 
-  private async endGame(hasWinner: boolean, winnerData: any) {
+  private async endGame(hasWinner: boolean, winners: any[]) {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.stopBotTimers();
     
     // 🔥 SETTLE THE PRIZE BEFORE ENDING THE GAME
-    if (hasWinner && winnerData) {
-      await this.settleWinners(winnerData);
+    if (hasWinner && winners && winners.length > 0) {
+      await this.settleWinners(winners);
     }
     this.state = 'COMPLETED';
     this.io.emit('game:completed', {
