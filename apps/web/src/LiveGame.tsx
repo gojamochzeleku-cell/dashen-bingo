@@ -93,10 +93,14 @@ function LiveGame() {
       updateStats(data)
     })
     
-    socket.on('game:completed', (data) => { 
-      if (data.hasWinner) {
-        setWinner(data.winner)
-        setCountdown(8)
+    socket.on('game:completed', (data) => {
+      console.log('📡 [FRONTEND] Received game:completed:', data);
+      if (data.hasWinner && data.winner) {
+        console.log('🏆 [FRONTEND] Setting winner state:', data.winner.name);
+        setWinner(data.winner);
+        setCountdown(8);
+      } else {
+        console.log('⚠️ [FRONTEND] Game completed but no winner data.');
       }
     })
 
@@ -193,82 +197,65 @@ function LiveGame() {
       </div>
 
       {/* 🔬 PREMIUM WINNER MODAL (Blink effect strictly isolated here) */}
-      {winner && (() => {
-        const winnerPatternCells = getCompletedPatternCells(winner.grid, calledSet);
-        return (
-          <div className="winner-overlay-premium">
-            <div className="winner-modal-premium">
-              <div className="winner-glow-bg"></div>
-              <h2 className="winner-modal-title">🎉 Game Completed</h2>
-              <p className="winner-modal-subtitle">New game will start soon. You will be redirected to the lobby.</p>
-              
-              
-  {/* ☢️ NUCLEAR ANIMATION INJECTION ☢️ */}
-  <style>{`
-    @keyframes blinkRedBlack {
-      0% { background: #ff0000 !important; color: #ffffff !important; transform: scale(1.05); box-shadow: 0 0 20px rgba(255,0,0,0.8); }
-      100% { background: #111111 !important; color: #ffffff !important; transform: scale(1); box-shadow: none; }
-    }
-  `}</style>
+      {winner && winner.grid && (() => {
+  const winnerPatternCells = getCompletedPatternCells(winner.grid, calledSet);
+  return (
+    <div className="winner-overlay-premium">
+      <div className="winner-modal-premium">
+        <div className="winner-glow-bg"></div>
+        <h2 className="winner-modal-title">🎉 Game Completed</h2>
+        <p className="winner-modal-subtitle">New game will start soon.</p>
+        
+        <div className="winner-announcement">
+          <span style={{ background: '#000000', color: '#FFD700', padding: '12px 24px', borderRadius: '10px', fontWeight: '900', fontSize: '1.5rem', border: '2px solid #FFD700', display: 'inline-block', marginBottom: '10px' }}>
+            {winner.name || 'Player'}
+          </span>
+          <span className="winner-card-badge">Card #{winner.cardId}</span>
+          <span className="winner-action">has won the game!</span>
+          {winner.prizeAmount && <span className="winner-action" style={{color: '#34d399', marginTop: '8px'}}>Prize: {Math.floor(winner.prizeAmount)} ETB</span>}
+        </div>
 
-              <div className="winner-announcement">
-                <span style={{
-                    background: '#000000',
-                    color: '#FFD700',
-                    padding: '12px 24px',
-                    borderRadius: '10px',
-                    fontWeight: '900',
-                    fontSize: '1.5rem',
-                    border: '2px solid #FFD700',
-                    display: 'inline-block',
-                    marginBottom: '10px',
-                    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
-                  }}>{winner.botName || 'Player'}</span> 
-                <span className="winner-card-badge">Card #{winner.cardId}</span> 
-                <span className="winner-action">has won the game!</span>
-              </div>
-
-              <div className="winner-card-display-premium">
-                <div className="winner-card-header-premium">
-                  <span className="winner-header-letter">B</span>
-                  <span className="winner-header-letter">I</span>
-                  <span className="winner-header-letter">N</span>
-                  <span className="winner-header-letter">G</span>
-                  <span className="winner-header-letter">O</span>
-                </div>
-                <div className="winner-card-grid-premium">
-                  {winner.grid.map((row: (number | null)[], rIdx: number) => 
-                    row.map((cell: number | null, cIdx: number) => {
-                      const isFree = rIdx === 2 && cIdx === 2
-                      const isRedLight = winnerPatternCells.has(`${rIdx}-${cIdx}`)
-                      const isLastNumber = cell === winner.winningNumber // 🔥 Identifies the exact winning number
-                      return (
-                        <div 
-                          key={`${rIdx}-${cIdx}`} 
-                          className={`winner-cell-premium ${isFree ? 'free-cell-premium' : ''} ${isRedLight ? 'pattern-complete-premium' : ''} ${isLastNumber ? 'golden-halo-pulse' : ''}`}
-                          style={{
-                            ...(isRedLight && !isLastNumber ? { border: '3px solid #000000', boxShadow: '0 0 0 1px #000000' } : {}),
-                            ...(isLastNumber ? { animation: 'blinkRedBlack 1s infinite alternate ease-in-out', border: '3px solid #000000' } : {})
-                          }}
-                        >
-                          {isFree ? '★' : cell}
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              </div>
-
-              <div className="redirect-countdown-premium">
-                <div className="countdown-bar">
-                  <div className="countdown-fill" style={{ width: `${(countdown / 8) * 100}%` }}></div>
-                </div>
-                <p>Redirecting to the Lobby in <strong>{countdown}</strong> seconds...</p>
-              </div>
-            </div>
+        <div className="winner-card-display-premium">
+          <div className="winner-card-header-premium">
+            <span className="winner-header-letter">B</span>
+            <span className="winner-header-letter">I</span>
+            <span className="winner-header-letter">N</span>
+            <span className="winner-header-letter">G</span>
+            <span className="winner-header-letter">O</span>
           </div>
-        )
-      })()}
+          <div className="winner-card-grid-premium">
+            {winner.grid.map((row: (number | null)[], rIdx: number) =>
+              row.map((cell: number | null, cIdx: number) => {
+                const isFree = rIdx === 2 && cIdx === 2;
+                const isRedLight = winnerPatternCells.has(`${rIdx}-${cIdx}`);
+                const isLastNumber = cell === winner.winningNumber;
+                return (
+                  <div
+                    key={`${rIdx}-${cIdx}`}
+                    className={`winner-cell-premium ${isFree ? 'free-cell-premium' : ''} ${isRedLight ? 'pattern-complete-premium' : ''} ${isLastNumber ? 'golden-halo-pulse' : ''}`}
+                    style={{
+                      ...(isRedLight && !isLastNumber ? { border: '3px solid #000000', boxShadow: '0 0 0 1px #000000' } : {}),
+                      ...(isLastNumber ? { animation: 'blinkRedBlack 1s infinite alternate ease-in-out', border: '3px solid #000000' } : {})
+                    }}
+                  >
+                    {isFree ? '★' : cell}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+        <div className="redirect-countdown-premium">
+          <div className="countdown-bar">
+            <div className="countdown-fill" style={{ width: `${(countdown / 8) * 100}%` }}></div>
+          </div>
+          <p>Redirecting to the Lobby in <strong>{countdown}</strong> seconds...</p>
+        </div>
+      </div>
+    </div>
+  );
+})()}
     </div>
   )
 }

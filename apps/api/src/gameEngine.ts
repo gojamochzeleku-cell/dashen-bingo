@@ -397,30 +397,34 @@ export class GameEngine {
   }
 
   private async endGame(hasWinner: boolean, winners: any[] | null) {
-    const safeWinners = winners || [];
-    try {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.stopBotTimers();
-    
-    // 🔥 SETTLE THE PRIZE BEFORE ENDING THE GAME
-    let winnerToEmit = null;
-      // 🔥 SETTLE THE PRIZE BEFORE ENDING THE GAME
-      if (hasWinner && safeWinners.length > 0) {
-        await this.settleWinners(safeWinners);
-        winnerToEmit = safeWinners[0];
-      }
 
-      this.state = 'COMPLETED';
-      console.log('📡 [GAME ENGINE] Emitting game:completed. hasWinner:', hasWinner, 'winner:', winnerToEmit ? winnerToEmit.name : 'None');
-      this.io.emit('game:completed', {
-        hasWinner,
-        winner: winnerToEmit
-      });
-    } catch (err) {
-      console.error('❌ [GAME ENGINE] endGame crashed:', err);
-      this.io.emit('game:completed', { hasWinner: false, winner: null });
+    let winnerPayload = null;
+    if (hasWinner && winners && winners.length > 0) {
+      try {
+        await this.settleWinners(winners);
+        winnerPayload = winners[0]; // Send the first winner to the frontend for the UI
+        console.log('🏆 [GAME ENGINE] Settled winners. Emitting payload for:', winnerPayload.name);
+      } catch (err) {
+        console.error('❌ [GAME ENGINE] Error settling winners:', err);
+      }
     }
-    setTimeout(() => { console.log('🔄 [GAME ENGINE] Restarting...'); this.startLobby(); }, 8000);
+
+    this.state = 'COMPLETED';
+    
+    const emitData = {
+      hasWinner: !!winnerPayload,
+      winner: winnerPayload
+    };
+    
+    console.log('📡 [GAME ENGINE] Emitting game:completed:', JSON.stringify(emitData));
+    this.io.emit('game:completed', emitData);
+
+    setTimeout(() => { 
+      console.log('🔄 [GAME ENGINE] Restarting...'); 
+      this.startLobby(); 
+    }, 8000);
   }
 
   public getCurrentState() {
