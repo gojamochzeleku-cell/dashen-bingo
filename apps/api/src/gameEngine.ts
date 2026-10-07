@@ -403,14 +403,19 @@ export class GameEngine {
     this.stopBotTimers();
     
     // 🔥 SETTLE THE PRIZE BEFORE ENDING THE GAME
-    if (hasWinner && safeWinners.length > 0) {
-      await this.settleWinners(safeWinners);
-    }
-    this.state = 'COMPLETED';
-    this.io.emit('game:completed', {
-      hasWinner,
-      winner: winnerToEmit
-    });
+    let winnerToEmit = null;
+      // 🔥 SETTLE THE PRIZE BEFORE ENDING THE GAME
+      if (hasWinner && safeWinners.length > 0) {
+        await this.settleWinners(safeWinners);
+        winnerToEmit = safeWinners[0];
+      }
+
+      this.state = 'COMPLETED';
+      console.log('📡 [GAME ENGINE] Emitting game:completed. hasWinner:', hasWinner, 'winner:', winnerToEmit ? winnerToEmit.name : 'None');
+      this.io.emit('game:completed', {
+        hasWinner,
+        winner: winnerToEmit
+      });
     } catch (err) {
       console.error('❌ [GAME ENGINE] endGame crashed:', err);
       this.io.emit('game:completed', { hasWinner: false, winner: null });
