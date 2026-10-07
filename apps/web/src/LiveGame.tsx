@@ -69,7 +69,7 @@ function LiveGame() {
       .then(r => r.json())
       .then(data => {
         if (data.cards) {
-          const cardsWithGrids = data.cards.map((c: any) => ({ id: c.bingo_card_id, grid: c.grid || generateCardGrid(c.bingo_card_id) }))
+          const cardsWithGrids = data.cards.map((c: any) => ({ id: c.bingo_card_id, grid: c.grid || generateCardGrid(c.bingo_card_id), fee_paid: c.fee_paid }))
           setMyCards(cardsWithGrids); setHasCards(cardsWithGrids.length > 0)
           const totalSpent = data.cards.reduce((sum: number, card: any) => sum + parseFloat(card.fee_paid || 10), 0)
           setReserved(totalSpent)
