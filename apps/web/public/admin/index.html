@@ -255,7 +255,7 @@ async function refresh(){
     document.getElementById('s-bal').textContent = money(db.totalBalances);
     document.getElementById('s-timer').textContent = (g.state==='WAITING' ? (g.timeRemaining ?? '--') + 's' : 'LIVE');
     document.getElementById('s-bots').textContent = d.botCount ?? '--';
-    document.getElementById('botCountInput').value = d.botCount ?? 30;
+    const botInput = document.getElementById('botCountInput'); if (document.activeElement !== botInput) { botInput.value = d.botCount ?? 30; }
     const st = document.getElementById('gameState');
     st.textContent = g.state || '--';
     st.classList.toggle('live', g.state === 'CALLING');
