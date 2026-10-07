@@ -54,6 +54,17 @@ function Lobby() {
 
     socket.on('game:stats', handleStats)
     fetchWalletBalance()
+    // 🔄 Restore selected cards on mount
+  fetch(API_BASE + `/api/my-cards?telegramId=${TELEGRAM_ID}`)
+    .then(r => r.json())
+    .then(data => {
+      if (data.cards && data.cards.length > 0) {
+        const restoredCards = data.cards.map((c: any) => ({ cardId: c.bingo_card_id, fee: parseFloat(c.fee_paid) || 10 }));
+        setSelectedCards(restoredCards);
+        setConfirmedFee(restoredCards[0].fee); // Sync fee with restored cards
+      }
+    })
+    .catch(err => console.error('Failed to restore cards:', err));
     return () => { socket.off('game:stats', handleStats) }
   }, [recentlyRefunded])
 

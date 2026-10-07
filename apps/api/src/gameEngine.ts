@@ -300,8 +300,7 @@ export class GameEngine {
         number: newNumber, 
         calledNumbers: this.calledNumbers,
         totalCardsSold: this.totalCardsSold,
-        prizePool: this.prizePool
-      });
+        });
 
       // 🔬 CHECK FOR 2 PATTERNS
       for (const bot of this.bots) {
