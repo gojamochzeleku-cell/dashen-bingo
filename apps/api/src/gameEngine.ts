@@ -362,6 +362,7 @@ export class GameEngine {
 
   
   private async settleWinners(winners: any[]) {
+    try {
     if (!winners || winners.length === 0) return;
     const totalWinners = winners.length;
     const totalCards = this.totalCardsSold;
@@ -391,9 +392,13 @@ export class GameEngine {
         console.error('❌ [GAME ENGINE] Failed to settle winner:', winner, error);
       }
     }
+    } catch (err) {
+      console.error('❌ [GAME ENGINE] settleWinners outer crash:', err);
+    }
   }
 
   private async endGame(hasWinner: boolean, winners: any[]) {
+    try {
     if (this.timerInterval) clearInterval(this.timerInterval);
     this.stopBotTimers();
     
@@ -404,9 +409,12 @@ export class GameEngine {
     this.state = 'COMPLETED';
     this.io.emit('game:completed', {
       hasWinner,
-      winner: (hasWinner && winners && winners.length > 0) ? winners[0] : null,
-      prizePool: this.prizePool
+      winner: winnerToEmit
     });
+    } catch (err) {
+      console.error('❌ [GAME ENGINE] endGame crashed:', err);
+      this.io.emit('game:completed', { hasWinner: false, winner: null });
+    }
     setTimeout(() => { console.log('🔄 [GAME ENGINE] Restarting...'); this.startLobby(); }, 8000);
   }
 

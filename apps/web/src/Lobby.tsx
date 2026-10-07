@@ -26,6 +26,7 @@ function Lobby() {
   const [gameState, setGameState] = useState('WAITING')
   const [selectedCards, setSelectedCards] = useState<PurchasedCard[]>([])
   const [currentFee, setCurrentFee] = useState(DEFAULT_FEE)
+  const [confirmedFee, setConfirmedFee] = useState(DEFAULT_FEE)
   const [needsConfirmation, setNeedsConfirmation] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
   const [message, setMessage] = useState({ text: '', type: 'success' | 'error' | '' })
@@ -149,7 +150,7 @@ function Lobby() {
       if (newFee > currentFee && selectedCards.length > 0) {
         setCurrentFee(newFee); setNeedsConfirmation(true)
         setMessage({ text: `Fee: ${newFee} ETB. Confirm?`, type: 'success' })
-      } else { setCurrentFee(newFee); setNeedsConfirmation(false); setMessage({ text: '', type: '' }) }
+      } else { setCurrentFee(newFee); setConfirmedFee(currentFee); setNeedsConfirmation(false); setMessage({ text: '', type: '' }) }
     }
   }
 
@@ -185,7 +186,7 @@ function Lobby() {
         <div className="compact-stats-row">
           <div className="mini-stat"><span className="label">ቀሪ ሂሳብ</span><span className="val green">{walletBalance} ETB</span></div>
           <div className="mini-stat"><span className="label">ካርቴላ</span><span className="val blue">{totalCardsSold}</span></div>
-          <div className="mini-stat"><span className="label">ሽልማት</span><span className="val purple">{Math.floor(currentFee * totalCardsSold * 0.8)} ETB</span></div>
+          <div className="mini-stat"><span className="label">ሽልማት</span><span className="val purple">{Math.floor(confirmedFee * totalCardsSold * 0.8)} ETB</span></div>
         </div>
 
         <div className="lobby-header-row">
