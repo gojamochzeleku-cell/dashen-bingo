@@ -126,7 +126,7 @@ function LiveGame() {
       <div className="live-stats-bar">
         <div className="live-stat-box"><span className="live-stat-label">ቀሪ ሂሳብ</span><span className="live-stat-value green">{balance}</span></div>
         <div className="live-stat-box"><span className="live-stat-label">ምድብ</span><span className="live-stat-value blue">{reserved}</span></div>
-        <div className="live-stat-box"><span className="live-stat-label">ሽልማት</span><span className="live-stat-value yellow">{prize}</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">ሽልማት</span><span className="live-stat-value yellow">{Math.floor((myCards.length > 0 ? (parseFloat(myCards[0].fee_paid) || 10) : 10) * totalCardsSold * 0.8)}</span></div>
         <div className="live-stat-box"><span className="live-stat-label">ካርቴላ</span><span className="live-stat-value purple">{totalCardsSold}</span></div>
         <div className="live-stat-box"><span className="live-stat-label">የተጠሩ</span><span className="live-stat-value orange">{calledNumbers.length}/75</span></div>
       </div>
