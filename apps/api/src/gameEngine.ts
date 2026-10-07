@@ -360,30 +360,35 @@ export class GameEngine {
   }
 
   
-  private async settleWinners(winnerData: any) {
-    if (!winnerData || !winnerData.cardId) return;
-    try {
-      const cardResult = await this.pool.query(
-        'SELECT user_id FROM game_cards WHERE bingo_card_id = $1 AND game_id = 1',
-        [winnerData.cardId]
-      );
-      if (cardResult.rows.length === 0) {
-        console.log(`⚠️ [GAME ENGINE] Card #${winnerData.cardId} not found (likely a bot). No payout.`);
-        return;
+  private async settleWinners(winners: any[]) {
+    if (!winners || winners.length === 0) return;
+    const totalWinners = winners.length;
+    const totalCards = this.totalCardsSold;
+
+    for (const winner of winners) {
+      try {
+        const fee = winner.fee || 10;
+        const rawPrize = fee * totalCards * 0.8;
+        const finalPrize = rawPrize / totalWinners;
+
+        if (winner.type === 'human' && winner.userId) {
+          const walletResult = await this.pool.query('SELECT id FROM wallets WHERE user_id = $1', [winner.userId]);
+          if (walletResult.rows.length > 0) {
+            const walletId = walletResult.rows[0].id;
+            await this.pool.query('UPDATE wallets SET balance = balance + $1 WHERE id = $2', [finalPrize, walletId]);
+            await this.pool.query(
+              'INSERT INTO wallet_ledger (wallet_id, amount, type, description) VALUES ($1, $2, $3, $4)',
+              [walletId, finalPrize, 'PRIZE_WIN', `Won Bingo (Fee:${fee}, Split:${totalWinners})`]
+            );
+            console.log(`💰 [GAME ENGINE] Paid ${finalPrize} ETB to user ${winner.userId}`);
+          }
+        } else {
+          console.log(`🤖 [GAME ENGINE] Bot ${winner.name} won. No payout.`);
+        }
+        winner.prizeAmount = finalPrize;
+      } catch (error) {
+        console.error('❌ [GAME ENGINE] Failed to settle winner:', winner, error);
       }
-      const userId = cardResult.rows[0].user_id;
-      const walletResult = await this.pool.query('SELECT id FROM wallets WHERE user_id = $1', [userId]);
-      if (walletResult.rows.length === 0) return;
-      
-      const prize = this.prizePool;
-      await this.pool.query('UPDATE wallets SET balance = balance + $1 WHERE id = $2', [prize, walletResult.rows[0].id]);
-      await this.pool.query('INSERT INTO wallet_ledger (wallet_id, amount, type, description) VALUES ($1, $2, $3, $4)',
-        [walletResult.rows[0].id, prize, 'PRIZE_WIN', `Won Bingo with card #${winnerData.cardId}`]
-      );
-      console.log(`💰 [GAME ENGINE] SUCCESS: Paid ${prize} ETB to user ${userId}`);
-      winnerData.prizeAmount = prize;
-    } catch (error) {
-      console.error('❌ [GAME ENGINE] Failed to settle winner:', error);
     }
   }
 
@@ -398,7 +403,7 @@ export class GameEngine {
     this.state = 'COMPLETED';
     this.io.emit('game:completed', {
       hasWinner,
-      winner: hasWinner ? winnerData : null,
+      winner: (hasWinner && winners && winners.length > 0) ? winners[0] : null,
       prizePool: this.prizePool
     });
     setTimeout(() => { console.log('🔄 [GAME ENGINE] Restarting...'); this.startLobby(); }, 8000);
