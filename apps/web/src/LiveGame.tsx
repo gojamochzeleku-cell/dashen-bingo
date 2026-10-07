@@ -39,7 +39,7 @@ function LiveGame() {
   const [myCards, setMyCards] = useState<BingoCard[]>([])
   const [balance, setBalance] = useState(0)
   const [reserved, setReserved] = useState(0)
-  const [userFee, setUserFee] = useState(10)
+  const [prize, setPrize] = useState(0)
   const [totalCardsSold, setTotalCardsSold] = useState(0)
   const [gameState, setGameState] = useState('WAITING')
   const [winner, setWinner] = useState<any>(null)
@@ -70,7 +70,7 @@ function LiveGame() {
       .then(data => {
         if (data.cards) {
           const cardsWithGrids = data.cards.map((c: any) => ({ id: c.bingo_card_id, grid: c.grid || generateCardGrid(c.bingo_card_id) }))
-          setMyCards(cardsWithGrids); setHasCards(cardsWithGrids.length > 0); setUserFee(cardsWithGrids.length > 0 ? parseFloat(cardsWithGrids[0].fee_paid) || 10 : 10);
+          setMyCards(cardsWithGrids); setHasCards(cardsWithGrids.length > 0)
           const totalSpent = data.cards.reduce((sum: number, card: any) => sum + parseFloat(card.fee_paid || 10), 0)
           setReserved(totalSpent)
         } else { setHasCards(false); setReserved(0); }
@@ -80,7 +80,7 @@ function LiveGame() {
 
     const updateStats = (data: any) => {
       if (data.totalCardsSold !== undefined) setTotalCardsSold(data.totalCardsSold)
-      
+      if (data.prizePool !== undefined) setPrize(Math.floor(data.prizePool))
       if (data.state) setGameState(data.state)
     }
 
@@ -126,7 +126,7 @@ function LiveGame() {
       <div className="live-stats-bar">
         <div className="live-stat-box"><span className="live-stat-label">ቀሪ ሂሳብ</span><span className="live-stat-value green">{balance}</span></div>
         <div className="live-stat-box"><span className="live-stat-label">ምድብ</span><span className="live-stat-value blue">{reserved}</span></div>
-        <div className="live-stat-box"><span className="live-stat-label">ሽልማት</span><span className="live-stat-value yellow">{Math.floor(userFee * totalCardsSold * 0.8)}</span></div>
+        <div className="live-stat-box"><span className="live-stat-label">ሽልማት</span><span className="live-stat-value yellow">{prize}</span></div>
         <div className="live-stat-box"><span className="live-stat-label">ካርቴላ</span><span className="live-stat-value purple">{totalCardsSold}</span></div>
         <div className="live-stat-box"><span className="live-stat-label">የተጠሩ</span><span className="live-stat-value orange">{calledNumbers.length}/75</span></div>
       </div>

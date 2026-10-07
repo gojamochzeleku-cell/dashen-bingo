@@ -42,7 +42,7 @@ function Lobby() {
     const handleStats = (data: any) => {
       setTimeRemaining(data.timeRemaining)
       setTotalCardsSold(data.totalCardsSold || 0)
-      
+      if (data.prizePool !== undefined && data.prizePool > 0) setPrizePool(data.prizePool)
       setGameState(data.state)
       if (Array.isArray(data.soldCardIds)) {
         // 🔬 FILTER OUT recently refunded cards so they NEVER turn red!
@@ -185,7 +185,7 @@ function Lobby() {
         <div className="compact-stats-row">
           <div className="mini-stat"><span className="label">ቀሪ ሂሳብ</span><span className="val green">{walletBalance} ETB</span></div>
           <div className="mini-stat"><span className="label">ካርቴላ</span><span className="val blue">{totalCardsSold}</span></div>
-          <div className="mini-stat"><span className="label">ሽልማት</span><span className="val purple">{Math.floor(currentFee * totalCardsSold * 0.8)} ETB</span></div>
+          <div className="mini-stat"><span className="label">ሽልማት</span><span className="val purple">{Math.floor(prizePool)} ETB</span></div>
         </div>
 
         <div className="lobby-header-row">
