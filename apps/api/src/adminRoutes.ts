@@ -217,6 +217,7 @@ export function createAdminRouter(gameEngine: GameEngine, pool: any): Router {
         return res.status(400).json({ error: 'Invalid bot count. Must be between 0 and 200.' });
       }
       gameEngine.botTargetCount = count;
+      console.log(`🛡️ [ADMIN] Updated botTargetCount to: ${count}`);
       res.json({ success: true, currentCount: gameEngine.botTargetCount });
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });

@@ -219,6 +219,7 @@ export class GameEngine {
     this.soldCardIds.clear();
     this.bots = [];
     this.stopBotTimers();
+    console.log(`🤖 [GAME ENGINE] Starting new lobby. botTargetCount is currently: ${this.botTargetCount}`);
 
     this.pool.query('DELETE FROM game_cards WHERE game_id = 1')
       .then(() => console.log(' [GAME ENGINE] Cleared old cards for new round.'))
